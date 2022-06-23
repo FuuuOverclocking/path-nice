@@ -1,0 +1,69 @@
+{
+    "name": "path-extra",
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Forget fs and path. This is THE PKG that can definitely save you life.",
+    "homepage": "https://github.com/FuuuOverclocking/path-extra",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/FuuuOverclocking/path-extra"
+    },
+    "author": {
+        "email": "g.for.xyz@gmail.com",
+        "name": "Fuu"
+    },
+    "engines": {
+        "node": ">=12"
+    },
+    "type": "module",
+    "main": "cjs/index.js",
+    "exports": {
+        ".": {
+            "types": "./cjs/index.d.ts",
+            "import": "./esm/index.js",
+            "require": "./cjs/index.js"
+        }
+    },
+    "scripts": {
+        "build:cjs": "tsc -p tsconfig.cjs.json",
+        "build:esm": "tsc -p tsconfig.esm.json",
+        "build": "concurrently \"yarn build:cjs\" \"yarn build:esm\"",
+        "watch:cjs": "tsc -w -p tsconfig.cjs.json",
+        "watch:esm": "tsc -w -p tsconfig.esm.json"
+    },
+    "devDependencies": {
+        "concurrently": "^7.2.2",
+        "prettier": "^2.7.1",
+        "typescript": "^4.7.4"
+    },
+    "files": [
+        "cjs/",
+        "esm/"
+    ],
+    "sideEffects": false,
+    "keywords": [
+        "path",
+        "fs",
+        "file",
+        "file system",
+        "copy",
+        "directory",
+        "extra",
+        "mkdirp",
+        "mkdir",
+        "mkdirs",
+        "recursive",
+        "json",
+        "read",
+        "write",
+        "extra",
+        "delete",
+        "remove",
+        "touch",
+        "create",
+        "text",
+        "output",
+        "move",
+        "promise"
+    ]
+}
