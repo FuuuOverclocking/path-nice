@@ -1,3 +1,4 @@
+// For editor only
 {
     "extends": "./tsconfig.base.json",
     "compilerOptions": {

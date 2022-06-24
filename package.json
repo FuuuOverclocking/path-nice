@@ -1,12 +1,12 @@
 {
-    "name": "path-extra",
+    "name": "path-nice",
     "version": "0.1.0",
     "license": "MIT",
     "description": "Forget fs and path. This is THE PKG that can definitely save you life.",
-    "homepage": "https://github.com/FuuuOverclocking/path-extra",
+    "homepage": "https://github.com/FuuuOverclocking/path-nice",
     "repository": {
         "type": "git",
-        "url": "https://github.com/FuuuOverclocking/path-extra"
+        "url": "https://github.com/FuuuOverclocking/path-nice"
     },
     "author": {
         "email": "g.for.xyz@gmail.com",
@@ -15,30 +15,33 @@
     "engines": {
         "node": ">=12"
     },
-    "type": "module",
-    "main": "cjs/index.js",
+    "main": "./dist/cjs/index.cjs.js",
+    "module": "./dist/esm/index.esm.js",
+    "types": "./dist/esm/index.esm.d.ts",
     "exports": {
         ".": {
-            "types": "./cjs/index.d.ts",
-            "import": "./esm/index.js",
-            "require": "./cjs/index.js"
+            "import": "./dist/esm/index.esm.js",
+            "require": "./dist/cjs/index.cjs.js"
         }
     },
     "scripts": {
-        "build:cjs": "tsc -p tsconfig.cjs.json",
-        "build:esm": "tsc -p tsconfig.esm.json",
-        "build": "concurrently \"yarn build:cjs\" \"yarn build:esm\"",
+        "build": "node ./scripts/build.js",
         "watch:cjs": "tsc -w -p tsconfig.cjs.json",
-        "watch:esm": "tsc -w -p tsconfig.esm.json"
+        "watch:esm": "tsc -w -p tsconfig.esm.json",
+        "cz": "cz"
     },
     "devDependencies": {
+        "@types/fs-extra": "^9.0.13",
+        "@types/node": "^12.12.6",
         "concurrently": "^7.2.2",
+        "cz-conventional-changelog": "3.3.0",
+        "fs-extra": "^10.1.0",
+        "memfs": "^3.4.6",
         "prettier": "^2.7.1",
         "typescript": "^4.7.4"
     },
     "files": [
-        "cjs/",
-        "esm/"
+        "dist/"
     ],
     "sideEffects": false,
     "keywords": [
@@ -56,7 +59,6 @@
         "json",
         "read",
         "write",
-        "extra",
         "delete",
         "remove",
         "touch",
@@ -65,5 +67,10 @@
         "output",
         "move",
         "promise"
-    ]
+    ],
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    }
 }

@@ -1,8 +1,9 @@
 {
     "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "module": "Node16",
-        "outDir": "./esm"
+        "module": "ES2020",
+        "outDir": "./dist/esm"
     },
-    "include": ["src/**/*"]
+    "include": ["src/**/*"],
+    "exclude": ["src/index.cjs.ts"]
 }
