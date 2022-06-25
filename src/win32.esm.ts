@@ -1,6 +1,6 @@
-import { path } from './auto/path.js';
+import { pathWin32 } from './win32/path.js';
 
-export default path;
+export default pathWin32;
 
 export {
     FileSystem,
@@ -15,7 +15,7 @@ const {
     basename, dirname, extname, format, isAbsolute, join, normalize, parse,
     relative, resolve, toNamespacedPath,
     PathNice, PathNicePosix, PathNiceWin32
-} = path;
+} = pathWin32;
 
 // prettier-ignore
 export {
