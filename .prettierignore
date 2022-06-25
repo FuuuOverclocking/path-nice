@@ -1,3 +1,5 @@
+type-gym.ts
+
 /tsconfig.base.json
 /tsconfig.cjs.json
 /tsconfig.esm.json

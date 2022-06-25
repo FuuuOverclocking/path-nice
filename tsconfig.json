@@ -2,9 +2,13 @@
 {
     "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "module": "CommonJS",
-        "outDir": "./dist/cjs"
+        "module": "ES2020",
+        "outDir": "./dist/esm"
     },
     "include": ["src/**/*"],
-    "exclude": ["src/index.esm.ts"]
+    "exclude": [
+        "src/index.cjs.ts",
+        "src/posix.cjs.ts",
+        "src/win32.cjs.ts",
+    ]
 }

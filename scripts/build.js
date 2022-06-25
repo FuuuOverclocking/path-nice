@@ -1,25 +1,30 @@
 const path = require('path');
-const fs = require('fs-extra');
+const fs = require('fs');
 const concurrently = require('concurrently');
 
-const dirDist = path.resolve(__dirname, '../dist');
+const dirDist = path.resolve('./dist');
 
-// clean
-fs.removeSync(dirDist);
+build();
+async function build() {
+    // clean
+    fs.rmSync(dirDist, { recursive: true, force: true });
 
-// tsc
-const { result } = concurrently(['tsc -p tsconfig.cjs.json', 'tsc -p tsconfig.esm.json']);
+    // tsc concurrently
+    const { result } = concurrently([
+        'tsc -p tsconfig.cjs.json',
+        'tsc -p tsconfig.esm.json',
+    ]);
+    await result;
 
-result.then(() => {
     // cjs/esm fixup
-    fs.writeJSONSync(
+    fs.writeFileSync(
         path.join(dirDist, 'cjs/package.json'),
-        { type: 'commonjs' },
-        { encoding: 'utf-8', spaces: 4 },
+        JSON.stringify({ type: 'commonjs' }, null, 4),
+        { encoding: 'utf-8' },
     );
-    fs.writeJSONSync(
+    fs.writeFileSync(
         path.join(dirDist, 'esm/package.json'),
-        { type: 'module' },
-        { encoding: 'utf-8', spaces: 4 },
+        JSON.stringify({ type: 'module' }, null, 4),
+        { encoding: 'utf-8' },
     );
-});
+}

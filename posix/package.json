@@ -1,0 +1,7 @@
+{
+    "name": "path-nice",
+    "description": "Forget fs and path. This is THE PKG that can definitely save you life.",
+    "main": "../dist/cjs/posix.cjs.js",
+    "module": "../dist/esm/posix.esm.js",
+    "types": "../dist/esm/posix.esm.d.ts"
+}

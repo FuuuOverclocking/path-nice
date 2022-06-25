@@ -5,5 +5,9 @@
         "outDir": "./dist/cjs"
     },
     "include": ["src/**/*"],
-    "exclude": ["src/index.esm.ts"]
+    "exclude": [
+        "src/index.esm.ts",
+        "src/posix.esm.ts",
+        "src/win32.esm.ts",
+    ]
 }

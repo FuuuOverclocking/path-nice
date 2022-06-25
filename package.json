@@ -20,8 +20,19 @@
     "types": "./dist/esm/index.esm.d.ts",
     "exports": {
         ".": {
+            "types": "./dist/esm/index.esm.d.ts",
             "import": "./dist/esm/index.esm.js",
             "require": "./dist/cjs/index.cjs.js"
+        },
+        "./posix": {
+            "types": "./dist/esm/posix.esm.d.ts",
+            "import": "./dist/esm/posix.esm.js",
+            "require": "./dist/cjs/posix.cjs.js"
+        },
+        "./win32": {
+            "types": "./dist/esm/win32.esm.d.ts",
+            "import": "./dist/esm/win32.esm.js",
+            "require": "./dist/cjs/win32.cjs.js"
         }
     },
     "scripts": {
@@ -38,10 +49,13 @@
         "fs-extra": "^10.1.0",
         "memfs": "^3.4.6",
         "prettier": "^2.7.1",
+        "typedoc": "^0.22.18",
         "typescript": "^4.7.4"
     },
     "files": [
-        "dist/"
+        "dist/",
+        "posix/",
+        "win32/"
     ],
     "sideEffects": false,
     "keywords": [
