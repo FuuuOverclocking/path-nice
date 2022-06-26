@@ -1,7 +1,7 @@
 import * as nodepath from 'path';
 import * as nodefs from 'fs';
 import type { FileSystem } from '../common/types.js';
-import { Join } from './type-gym.js';
+import { Join } from './type-gymnastics.js';
 
 const lowpath = nodepath.posix;
 

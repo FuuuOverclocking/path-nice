@@ -4,9 +4,27 @@
  * See https://github.com/nodejs/node/blob/84db3e7b06979a388a65d8ebce2571554c2dadd6/lib/path.js#L1166
  */
 export type Join<Paths extends string[]> =
-    Joined<'', Paths> extends ''
-        ? '.'
-        : Normalize<Joined<'', Paths>>
+    HasString<Paths> extends true
+        ? string
+        : Joined<'', Paths> extends ''
+            ? '.'
+            : Normalize<Joined<'', Paths>>
+    ;
+
+type HasString<Paths extends string[]> =
+    Paths extends []
+        ? false
+        : Paths extends [infer A]
+            ? string extends A
+                ? true
+                : false
+            : Paths extends [infer B, ...infer Rest]
+                ? string extends B
+                    ? true
+                    : Rest extends string[]
+                        ? HasString<Rest>
+                        : never
+                : never
     ;
 
 type Joined<Curr extends string, Paths extends string[]> =
@@ -33,18 +51,38 @@ type Joined_1<Curr extends string, P extends string> =
             : `${Curr}/${P}`
     ;
 
+/**
+ * Template meta programming version of path.posix.normalize().
+ *
+ * See https://github.com/nodejs/node/blob/84db3e7b06979a388a65d8ebce2571554c2dadd6/lib/path.js#L1127
+ */
 export type Normalize<P extends string> =
-    NormalizeString<P> extends ''
-        ? IsAbs<P> extends true
-            ? '/'
-            : (TrailingSep<P> extends true ? './' : '.')
-        : IsAbs<P> extends true
-            ? TrailingSep<P> extends true ? `/${NormalizeString<P>}/` : `/${NormalizeString<P>}`
-            : TrailingSep<P> extends true ? `${NormalizeString<P>}/` : `${NormalizeString<P>}`
-        ;
+    string extends P
+        ? string
+        : NormalizeString<P> extends ''
+            ? IsAbs<P> extends true
+                ? '/'
+                : (TrailingSep<P> extends true ? './' : '.')
+            : IsAbs<P> extends true
+                ? TrailingSep<P> extends true ? `/${NormalizeString<P>}/` : `/${NormalizeString<P>}`
+                : TrailingSep<P> extends true ? `${NormalizeString<P>}/` : `${NormalizeString<P>}`
+            ;
 
-type IsAbs<P extends string> = P extends `/${infer A}` ? true : false;
-type TrailingSep<P extends string> = P extends `${infer A}/` ? true : false;
+export type IsAbs<P extends string> =
+    string extends P
+        ? boolean
+        : P extends `/${infer A}`
+            ? true
+            : false
+    ;
+
+type TrailingSep<P extends string> =
+    string extends P
+        ? boolean
+        : P extends `${infer A}/`
+            ? true
+            : false
+    ;
 
 type NormalizeString<P extends string> =
     Stack2String<
@@ -139,3 +177,18 @@ type StackTop<Stack extends unknown[]> =
     Stack extends [...infer Rest, infer Top]
         ? Top
         : never;
+
+export type ForceSep<P extends string, T extends '/' | '\\'> =
+    ReplaceAll<ReplaceAll<P, '\\', T>, '/', T>
+    ;
+
+type ReplaceAll<
+    S extends string,
+    Search extends string,
+    To extends string
+> = Search extends ''
+    ? S
+    : S extends `${infer L}${Search}${infer R}`
+        ? `${ReplaceAll<L, Search, To>}${To}${ReplaceAll<R, Search, To>}`
+        : S
+    ;

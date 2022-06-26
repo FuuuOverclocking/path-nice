@@ -4,14 +4,10 @@
 
 If sometimes you do not feel nice about `path` or `fs` of Node.js, then just
 
-```js
-                      👇 add "nice" here
-import path from 'path-nice';
-                       or 👇 add "nice" here
-const path = require('path-nice');
-```
+![Add nice here](./docs/images/add-nice-here.png)
 
-No damage to your original code, while the `path` evolves.
+
+All existing code still works, while the `path` evolves.
 
 ## Installation
 
@@ -22,7 +18,6 @@ yarn add path-nice
 ```
 
 - Requires: Node.js >= v12.0.0
-- **0** dependencies
 - Provided: CommonJS, ESModule and TypeScript typings
 - ESModule version can be [used directly in Node](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
 

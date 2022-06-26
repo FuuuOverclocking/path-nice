@@ -2,7 +2,7 @@
     "name": "path-nice",
     "version": "1.0.0",
     "license": "MIT",
-    "description": "Forget fs and path. This is THE PKG that can definitely save you life.",
+    "description": "How path and fs should be designed.",
     "homepage": "https://github.com/FuuuOverclocking/path-nice",
     "repository": {
         "type": "git",
