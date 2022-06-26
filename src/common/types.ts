@@ -5,7 +5,6 @@ import { PathNice } from '../auto/path-nice.js';
 import { PathNicePosix } from '../posix/path-nice-posix.js';
 import { PathNiceWin32 } from '../win32/path-nice-win32.js';
 
-export type { PathNice, PathNicePosix, PathNiceWin32 };
 export type FileSystem = typeof nodefs | typeof fsExtra | memfs;
 
 export interface Path extends _PlatformPath {

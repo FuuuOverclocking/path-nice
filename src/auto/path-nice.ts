@@ -1,173 +1,240 @@
 import * as nodepath from 'path';
 import * as nodefs from 'fs';
-import type { FileSystem, PathNicePosix, PathNiceWin32 } from '../common/types.js';
 
 const lowpath = nodepath;
-const platformSep = lowpath.sep;
 const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
 
 /**
- * A PathNice instance is a wrapper of the original path string, so that the path
- * can be easily used to generate additional paths or manipulate files, etc.
- *
- * @example
- * $ ts = path('./src').join('index.ts').str
- * './src/index.ts'
- *
- * $ js = path(ts).changeExt('js').str
- * './src/index.js'
- *
- * $ path(js).writeFileSync(
- * >     path(ts).readFileSync().replace(/ts/g, 'js')
- * > )
- *
- * $ path('./src/index.js').existsSync()
- * true
+ * A PathNice instance is a wrapper of the raw path string, so that the path
+ * can be easily used to generate additional paths or manipulate files.
  */
 export class PathNice {
     /** Raw path string. */
-    public readonly str: string;
+    public readonly raw: string;
 
-    private readonly forceSep: '\\' | '/' | undefined;
-    private readonly fs: FileSystem;
-
-    constructor(str: string, forceSep?: '/' | '\\', fs?: FileSystem) {
-        if (forceSep && platformSep !== forceSep) {
-            this.str = str.replace(regReplaceSep, forceSep);
-        } else {
-            this.str = str;
-        }
-        this.forceSep = forceSep;
-        this.fs = fs || nodefs;
-    }
-
-    /**
-     * Convert something that could be a path into a PathNice.
-     * If it already is, return it as it is.
-     */
-    public static from<
-        P extends string | PathNice | PathNicePosix<any> | PathNiceWin32<any>,
-    >(path: P): P extends string ? PathNice : P {
-        return (typeof path === 'string' ? new PathNice(path) : path) as any;
+    constructor(str: string) {
+        this.raw = str;
+        Object.freeze(this);
     }
 
     private _new(str: string): PathNice {
-        return new PathNice(str, this.forceSep, this.fs);
+        return new PathNice(str);
     }
 
-    private _checkCompatibilityWith(path: PathNice): void {
-        if ((this.fs || path.fs) && this.fs !== path.fs) {
-            throw new Error(
-                `[path-nice]: Path("${this.str}", forceSep="${this.forceSep}", fs=${this.fs}) is ` +
-                    `incompatible with Path("${path.str}", forceSep="${path.forceSep}", fs=${path.fs}), ` +
-                    `because they use different filesystem.`,
-            );
+    private static _from(path: string | PathNice): PathNice {
+        if (typeof path === 'string') return new PathNice(path);
+        return path;
+    }
+
+    public valueOf(): string {
+        return this.raw;
+    }
+
+    /**
+     * Get (when 0 args) or set (when 1 arg) the path segment separator.
+     *
+     * When get, return 'none' if there is no separator in the path,
+     * or 'hybrid' if there is both '/' and '\\' separators.
+     *
+     * @example
+     * $ path('/home/fuu/data.json').separator()
+     * '/'
+     *
+     * $ path('C:\\Windows\\System32').separator()
+     * '\\'
+     *
+     * $ path('index.js').separator()
+     * 'none'
+     *
+     * $ path('C:\\Windows/System32').separator()
+     * 'hybrid'
+     *
+     * $ path('/home/fuu/data.json').separator('\\').raw
+     * '\\home\\fuu\\data.json'
+     *
+     * $ path('C:\\Windows\\System32').separator('/').raw
+     * 'C:/Windows/System32'
+     */
+    public separator(): '/' | '\\' | 'none' | 'hybrid';
+    public separator(forceSep: '/' | '\\'): PathNice;
+    public separator(forceSep?: '/' | '\\'): '/' | '\\' | 'none' | 'hybrid' | PathNice {
+        if (forceSep) return this._new(this.raw.replace(regReplaceSep, forceSep));
+        if (this.raw.indexOf('/') !== -1) {
+            if (this.raw.indexOf('\\') !== -1) {
+                return 'hybrid';
+            }
+            return '/';
         }
+        if (this.raw.indexOf('\\') !== -1) {
+            return '\\';
+        }
+        return 'none';
     }
 
     /**
      * Join all arguments together and normalize the resulting path.
      *
      * @example
-     * $ path('../data').join('settings.json').str
-     * '../data/settings.json'
+     * $ path('../data').join('settings.json').raw
+     * '../data/settings.json'      // on POSIX
+     * '..\\data\\settings.json'    // on Windows
      *
-     * $ path('/etc').join('hosts').str
-     * '/etc/hosts'
+     * $ path('/home').join('fuu', 'data.json').raw
+     * '/home/fuu/data.json'        // on POSIX
+     *
+     * $ path('C:\\Users').join('fuu', 'data.json').raw
+     * 'C:\\Users\\fuu\\data.json'  // on Windows
      */
-    public join(...paths: string[]): PathNice {
-        return this._new(lowpath.join(this.str, ...paths));
+    public join(...paths: Array<string | PathNice>): PathNice {
+        const _paths = paths.map((p) => (typeof p === 'string' ? p : p.raw));
+        return this._new(lowpath.join(this.raw, ..._paths));
     }
 
     /**
-     * Get the path of parent directory. Internally uses `path.dirname()`,
-     * which is similar to the Unix dirname command.
+     * Get (when 0 args) or set (when 1 arg) the directory name of a path.
      *
      * @example
-     * $ path('/etc/local/bin').parent().str
-     * '/etc/local'
+     * $ path('/usr/local/bin').dirname().raw
+     * '/usr/local'         // on POSIX
+     *
+     * $ path('C:\\Users\\fuu').dirname().raw
+     * 'C:\\Users'          // on Windows
+     *
+     * $ path('./src/index.ts').dirname('./dist').raw
+     * './dist/index.ts'    // on POSIX
+     * '.\\dist\\index.ts'  // on Windows
      */
-    public parent(newParent?: string | PathNice): PathNice {
-        return this._new(lowpath.dirname(this.str));
+    public dirname(newParent?: string | PathNice): PathNice {
+        switch (typeof newParent) {
+            case 'undefined':
+                return this._new(lowpath.dirname(this.raw));
+            case 'string':
+                return this._new(lowpath.join(newParent, lowpath.basename(this.raw)));
+            case 'object':
+                return this._new(lowpath.join(newParent.raw, lowpath.basename(this.raw)));
+        }
     }
 
     /**
-     * Returns the filename or directory name of the path, or to be precise,
-     * the last portion of the path. Similar to the Unix basename command.
-     * Often used to extract the file name from a fully qualified path.
+     * Return the path to the parent directory, similar to the Unix command `cd ..` .
+     *
+     * Same to `path(??).dirname()` and `path(??).parent` .
      *
      * @example
-     * $ path('./src/index.js').filename().str
+     * $ path('/usr/local/bin').dotdot.raw
+     * '/usr/local'         // on POSIX
+     *
+     * $ path('C:\\Users\\fuu').dotdot.raw
+     * 'C:\\Users'          // on Windows
+     */
+    public get dotdot(): PathNice {
+        return this.dirname();
+    }
+
+    /**
+     * Return the path to the parent directory, similar to the Unix command `cd ..` .
+     *
+     * Same to `path(??).dirname()` and `path(??).dotdot` .
+     *
+     * @example
+     * $ path('/usr/local/bin').parent.raw
+     * '/usr/local'         // on POSIX
+     *
+     * $ path('C:\\Users\\fuu').parent.raw
+     * 'C:\\Users'          // on Windows
+     */
+    public get parent(): PathNice {
+        return this.dirname();
+    }
+
+    /**
+     * Get (when 0 args) or set (when 1 arg) the last portion of the path.
+     *
+     * @example
+     * $ path('./src/index.js').filename().raw
      * 'index.js'
      *
-     * $ path('/home/fuu/').filename().str
-     * 'fuu'
+     * $ path('/home/fuu///').filename().raw
+     * 'fuu'                    // on POSIX
+     *
+     * $ path('/home/fuu/bar.txt').filename('foo.md').raw
+     * '/home/fuu/foo.md'       // on POSIX
+     *
+     * $ path('C:\\Users\\fuu\\\\\\').filename().raw
+     * 'fuu'                    // on Windows
+     *
+     * $ path('C:\\Users\\fuu\\bar.txt').filename('foo.md').raw
+     * 'C:\\Users\\fuu\\foo.md' // on Windows
      */
-    public filename(): PathNice {
-        return this._new(lowpath.basename(this.str));
+    public filename(newFilename?: string | PathNice): PathNice {
+        switch (typeof newFilename) {
+            case 'undefined':
+                return this._new(lowpath.basename(this.raw));
+            case 'string':
+                return this._new(lowpath.join(lowpath.dirname(this.raw), newFilename));
+            case 'object':
+                return this._new(
+                    lowpath.join(lowpath.dirname(this.raw), newFilename.raw),
+                );
+        }
     }
 
     /**
-     * Note: This method returns a STRING.
-     *
-     * Return the extension of the path, from the last '.' (excluded) to end of string
-     * in the last portion of the path.
+     * Get (when 0 args), set (when 1 arg of type string) or remove (when 1 arg is null)
+     * the extension of the path, from the last '.' to end of string in the last portion
+     * of the path.
      *
      * If there is no '.' in the last portion of the path or the first character of it
      * is '.', then it returns an empty string.
      *
      * @example
      * $ path('./src/index.js').ext()
-     * 'js'
+     * '.js'
      *
-     * $ path('./tsconfig.base.json').ext()
-     * 'json'
-     *
-     * $ path('.bashrc').ext()
+     * $ path('./LICENSE').ext()
      * ''
+     *
+     * $ path('/home/fuu/.bashrc').ext()
+     * ''
+     *
+     * $ path('./src/index.js').ext('.ts').raw
+     * './src/index.ts'     // on POSIX
+     * './src\\index.ts'    // on Windows
+     *
+     * $ path('./README.md').ext(null).raw
+     * './README'           // on POSIX
+     * '.\\README'          // on Windows
      */
-    public ext(): string {
-        return lowpath.extname(this.str).slice(1);
-    }
-
-    /**
-     * Modify, delete or add the extension of the path. If `ext` is null, delete (if exists).
-     * Otherwise, add (if not exists) or modify.
-     *
-     * @example
-     * $ path('path-nice/README.md').changeExt('txt').str
-     * 'path-nice/README.txt'
-     *
-     * $ path('path-nice/README.md').changeExt(null).str
-     * 'path-nice/README'
-     *
-     * $ path('path-nice/LICENSE').changeExt('txt').str
-     * 'path-nice/LICENSE.txt'
-     */
-    public changeExt(ext: string | null): PathNice {
-        const obj = lowpath.parse(this.str);
-        const _ext = ext ? '.' + ext : void 0;
-        return this._new(
-            lowpath.format({
-                dir: obj.dir,
-                name: obj.name,
-                ext: _ext,
-            }),
-        );
+    public ext(): string;
+    public ext(newExt: string | null): PathNice;
+    public ext(newExt?: string | null): string | PathNice {
+        switch (typeof newExt) {
+            case 'undefined':
+                return lowpath.extname(this.raw);
+            case 'string':
+            case 'object': // typeof null === 'object'
+                const obj = lowpath.parse(this.raw);
+                const _ext = newExt || void 0;
+                return this._new(
+                    lowpath.format({
+                        dir: obj.dir,
+                        name: obj.name,
+                        ext: _ext,
+                    }),
+                );
+        }
     }
 
     /**
      * Add a prefix to the filename, i.e. add the prefix after dirname, before filename.
      *
      * @example
-     * $ path('data/settings.json').prefixFilename('.old.').str
-     * 'data/.old.settings.json'
-     *
-     * $ path('./src/').prefixFilename('.old.').str
-     * './.old.src'
+     * $ path('data/January').prefixFilename('2021-').raw
+     * 'data/2021-January'  // on POSIX
+     * 'data\\2021-January' // on Windows
      */
     public prefixFilename(prefix: string): PathNice {
-        const obj = lowpath.parse(this.str);
+        const obj = lowpath.parse(this.raw);
         return this._new(
             lowpath.format({
                 dir: obj.dir,
@@ -181,14 +248,12 @@ export class PathNice {
      * If the extension not exists, directly add to the end.
      *
      * @example
-     * $ path('path-nice/tsconfig.json').postfixBeforeExt('.base').str
-     * 'path-nice/tsconfig.base.json'
-     *
-     * $ path('path-nice/LICENSE').postfixBeforeExt('.old').str
-     * 'path-nice/LICENSE.old'
+     * $ path('path-nice/tsconfig.json').postfixBeforeExt('.base').raw
+     * 'path-nice/tsconfig.base.json'   // on POSIX
+     * 'path-nice\\tsconfig.base.json'  // on Windows
      */
     public postfixBeforeExt(postfix: string): PathNice {
-        const obj = lowpath.parse(this.str);
+        const obj = lowpath.parse(this.raw);
         return this._new(
             lowpath.format({
                 dir: obj.dir,
@@ -202,14 +267,16 @@ export class PathNice {
      * Add a postfix to the end of the path.
      *
      * @example
-     * $ path('user/data/').postfix('-1').str
-     * 'user/data-1'
+     * $ path('user/data/').postfix('-1').raw
+     * 'user/data-1'        // on POSIX
+     * 'user\\data-1'       // on Windows
      *
-     * $ path('./content.txt').postfix('.json').str
-     * './content.txt.json'
+     * $ path('./content.txt').postfix('.json').raw
+     * './content.txt.json' // on POSIX
+     * './content.txt.json' // on Windows
      */
     public postfix(postfix: string): PathNice {
-        const obj = lowpath.parse(this.str);
+        const obj = lowpath.parse(this.raw);
         return this._new(
             lowpath.format({
                 dir: obj.dir,
@@ -220,41 +287,54 @@ export class PathNice {
     }
 
     /**
-     * Determines whether {path} is an absolute path. An absolute path will always resolve
+     * Determine whether {path} is an absolute path. An absolute path will always resolve
      * to the same location, regardless of the working directory.
      *
      * @example
-     * path('/foo/bar').isAbsolute(); // true
-     * path('/baz/..').isAbsolute();  // true
-     * path('qux/').isAbsolute();     // false
-     * path('.').isAbsolute();        // false
+     * // on POSIX
+     * path('/foo/bar').isAbsolute();    // true
+     * path('/baz/..').isAbsolute();     // true
+     * path('qux/').isAbsolute();        // false
+     * path('.').isAbsolute();           // false
+     * // on Windows
+     * path('//server').isAbsolute();    // true
+     * path('\\\\server').isAbsolute();  // true
+     * path('C:/foo/..').isAbsolute();   // true
+     * path('C:\\foo\\..').isAbsolute(); // true
+     * path('bar\\baz').isAbsolute();    // false
+     * path('bar/baz').isAbsolute();     // false
+     * path('.').isAbsolute();           // false
      */
     public isAbsolute(): boolean {
-        return lowpath.isAbsolute(this.str);
+        return lowpath.isAbsolute(this.raw);
     }
 
     /**
-     * Resolve the path to an absolute path, if the current one is not.
+     * Resolve the path to an absolute path, if it isn't now.
      *
      * @param basePath (optional) to which the current path is relative.
-     *                            Use current working directory, if not set.
+     *                            If not set, current working directory is used.
      *
      * @example
-     * $ path('./src/index.ts').toAbsolute().str // Suppose cwd is '/path-nice'
+     * $ path('./src/index.ts').toAbsolute().raw // on POSIX,
+     *                                           // suppose cwd is '/path-nice'
      * '/path-nice/src/index.ts'
+     *
+     * $ path('./src/index.ts').toAbsolute().raw // on Windows,
+     *                                           // suppose cwd is 'D:\\path-nice'
+     * 'D:\\path-nice\\src\\index.ts'
      */
     public toAbsolute(basePath?: string | PathNice): PathNice {
         if (this.isAbsolute()) return this;
-        if (!basePath) return this._new(lowpath.resolve(this.str));
+        if (!basePath) return this._new(lowpath.resolve(this.raw));
 
-        basePath = PathNice.from(basePath);
-        this._checkCompatibilityWith(basePath);
+        basePath = PathNice._from(basePath);
         if (!basePath.isAbsolute()) {
             throw new Error(
-                `[path-nice] PathNice.toAbsolute: "${basePath.str}" is not an absolute path.`,
+                `[path-nice] PathNice.toAbsolute: "${basePath.raw}" is not an absolute path.`,
             );
         }
-        return this._new(lowpath.resolve(basePath.str, this.str));
+        return this._new(lowpath.resolve(basePath.raw, this.raw));
     }
 
     /**
@@ -263,12 +343,160 @@ export class PathNice {
      * This is actually the reverse transform of path.resolve.
      *
      * @example
-     * $ path('/data/orandea/impl/bbb').toRelative('/data/orandea/test/aaa').str
+     * // on POSIX
+     * $ path('/data/orandea/impl/bbb').toRelative('/data/orandea/test/aaa').raw
      * '../../impl/bbb'
+     *
+     * // on Windows
+     * $ path('C:\\orandea\\impl\\bbb').toRelative('C:\\orandea\\test\\aaa').raw
+     * '..\\..\\impl\\bbb'
      */
     public toRelative(relativeTo: string | PathNice): PathNice {
-        relativeTo = PathNice.from(relativeTo);
-        this._checkCompatibilityWith(relativeTo);
-        return this._new(lowpath.relative(relativeTo.str, this.str));
+        if (typeof relativeTo === 'string') {
+            return this._new(lowpath.relative(relativeTo, this.raw));
+        }
+        return this._new(lowpath.relative(relativeTo.raw, this.raw));
+    }
+
+    /**
+     * Return an object whose properties represent significant elements of the path.
+     *
+     * @example
+     * // on POSIX
+     * ┌─────────────────────┬────────────┐
+     * │          dir        │    base    │
+     * ├──────┐              ├──────┬─────┤
+     * │ root │              │ name │ ext │
+     * "  /    home/user/dir / file  .txt "
+     * └──────┴──────────────┴──────┴─────┘
+     * $ const result = path('/home/fuu/data.json').parse()
+     * $ result.root()
+     * '/'
+     * $ result.dir()
+     * '/home/fuu'
+     * $ result.base()
+     * 'data.json'
+     * $ result.ext()
+     * '.json'
+     * $ result.name()
+     * 'data'
+     * $ result.dir('/root').ext('.txt').format().raw
+     * '/root/data.txt'
+     *
+     * // on Windows
+     * ┌─────────────────────┬────────────┐
+     * │          dir        │    base    │
+     * ├──────┐              ├──────┬─────┤
+     * │ root │              │ name │ ext │
+     * " C:\      path\dir   \ file  .txt "
+     * └──────┴──────────────┴──────┴─────┘
+     * $ const result = path('C:\\Users\\fuu\\data.json').parse()
+     * $ result.root()
+     * 'C:\\'
+     * $ result.dir()
+     * 'C:\\Users\\fuu'
+     * $ result.base()
+     * 'data.json'
+     * $ result.ext()
+     * '.json'
+     * $ result.name()
+     * 'data'
+     * $ result.dir('D:\\path-nice').ext('.txt').format().raw
+     * 'D:\\path-nice\\data.txt'
+     */
+    public parse(): ParsedPathNice {
+        const obj = lowpath.parse(this.raw);
+        return new ParsedPathNice(obj.root, obj.dir, obj.base, obj.ext, obj.name);
+    }
+}
+
+export class ParsedPathNice {
+    constructor(
+        private _root: string,
+        private _dir: string,
+        private _base: string,
+        private _ext: string,
+        private _name: string,
+    ) {}
+
+    public valueOf(): string {
+        return this.toString();
+    }
+
+    public format(): PathNice {
+        return new PathNice(
+            lowpath.format({
+                root: this._root,
+                dir: this._dir,
+                base: this._base,
+                ext: this._ext,
+                name: this._name,
+            }),
+        );
+    }
+
+    /**
+     * The root of the path such as '/' or 'c:\\'
+     */
+    public root(): string;
+    public root(newRoot: string): this;
+    public root(newRoot?: string): string | this {
+        if (typeof newRoot === 'string') {
+            this._root = newRoot;
+            return this;
+        }
+        return this._root;
+    }
+
+    /**
+     * The full directory path such as '/home/user/dir' or 'c:\\path\\dir'
+     */
+    public dir(): string;
+    public dir(newDir: string): this;
+    public dir(newDir?: string): string | this {
+        if (typeof newDir === 'string') {
+            this._dir = newDir;
+            return this;
+        }
+        return this._dir;
+    }
+
+    /**
+     * The file name including extension (if any) such as 'index.html'
+     */
+    public base(): string;
+    public base(newBase: string): this;
+    public base(newBase?: string): string | this {
+        if (typeof newBase === 'string') {
+            this._base = newBase;
+            return this;
+        }
+        return this._base;
+    }
+
+    /**
+     * The file extension (if any) such as '.html'
+     */
+    public ext(): string;
+    public ext(newExt: string): this;
+    public ext(newExt?: string): string | this {
+        if (typeof newExt === 'string') {
+            this._ext = newExt;
+            return this;
+        }
+        return this._ext;
+    }
+
+    /**
+     * The file name without extension (if any) such as 'index'
+     */
+    public name(): string;
+    public name(newName: string): this;
+    public name(newName?: string): string | this {
+        if (typeof newName === 'string') {
+            this._name = newName;
+            return this;
+        }
+        return this._name;
     }
 }
