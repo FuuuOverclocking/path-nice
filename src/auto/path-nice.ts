@@ -1,5 +1,6 @@
 import * as nodepath from 'path';
 import * as nodefs from 'fs';
+import { isValidBufferEncoding } from '../common/utils';
 
 const lowpath = nodepath;
 const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
@@ -12,13 +13,13 @@ export class PathNice {
     /** Raw path string. */
     public readonly raw: string;
 
-    constructor(str: string) {
-        this.raw = str;
+    constructor(path: string) {
+        this.raw = path;
         Object.freeze(this);
     }
 
-    private _new(str: string): PathNice {
-        return new PathNice(str);
+    private _new(path: string): PathNice {
+        return new PathNice(path);
     }
 
     private static _from(path: string | PathNice): PathNice {
@@ -29,6 +30,10 @@ export class PathNice {
     public valueOf(): string {
         return this.raw;
     }
+
+    // ==================================================================================
+    // Path related methods
+    // ==================================================================================
 
     /**
      * Get (when 0 args) or set (when 1 arg) the path segment separator.
@@ -166,10 +171,12 @@ export class PathNice {
      * $ path('C:\\Users\\fuu\\bar.txt').filename('foo.md').raw
      * 'C:\\Users\\fuu\\foo.md' // on Windows
      */
-    public filename(newFilename?: string | PathNice): PathNice {
+    public filename(): string;
+    public filename(newFilename: string | PathNice): PathNice;
+    public filename(newFilename?: string | PathNice): string | PathNice {
         switch (typeof newFilename) {
             case 'undefined':
-                return this._new(lowpath.basename(this.raw));
+                return lowpath.basename(this.raw);
             case 'string':
                 return this._new(lowpath.join(lowpath.dirname(this.raw), newFilename));
             case 'object':
@@ -312,8 +319,8 @@ export class PathNice {
     /**
      * Resolve the path to an absolute path, if it isn't now.
      *
-     * @param basePath (optional) to which the current path is relative.
-     *                            If not set, current working directory is used.
+     * @param basePath (optional) to which the current path is relative. If not set,
+     * current working directory is used.
      *
      * @example
      * $ path('./src/index.ts').toAbsolute().raw // on POSIX,
@@ -408,6 +415,189 @@ export class PathNice {
         const obj = lowpath.parse(this.raw);
         return new ParsedPathNice(obj.root, obj.dir, obj.base, obj.ext, obj.name);
     }
+
+    // ==================================================================================
+    // File system related methods
+    // ==================================================================================
+
+    /**
+     * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     */
+    public readFile(
+        options?: {
+            encoding?: null | undefined;
+            flag?: string | number | undefined;
+        } | null,
+    ): Promise<Buffer>;
+    /**
+     * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     */
+    public readFile(
+        options:
+            | { encoding: BufferEncoding; flag?: string | number | undefined }
+            | BufferEncoding,
+    ): Promise<string>;
+    /**
+     * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     */
+    public readFile(
+        options?:
+            | { encoding?: string | null | undefined; flag?: string | number | undefined }
+            | string
+            | null,
+    ): Promise<string | Buffer>;
+    public readFile(
+        options?:
+            | { encoding?: string | null | undefined; flag?: string | number | undefined }
+            | string
+            | null,
+    ): Promise<string | Buffer> {
+        return nodefs.promises.readFile(this.raw, options);
+    }
+
+    public readString(
+        options?:
+            | {
+                  encoding?: BufferEncoding | null | undefined;
+                  flag?: string | number | undefined;
+              }
+            | BufferEncoding,
+    ): Promise<string> {
+        if (!options) {
+            options = { encoding: 'utf-8' };
+            return nodefs.promises.readFile(this.raw, options) as Promise<string>;
+        }
+
+        if (typeof options === 'string' && isValidBufferEncoding(options)) {
+            options = { encoding: options };
+            return nodefs.promises.readFile(this.raw, options) as Promise<string>;
+        }
+
+        if (options && options.encoding && isValidBufferEncoding(options.encoding)) {
+            options.encoding ??= 'utf-8';
+            return nodefs.promises.readFile(this.raw, options) as Promise<string>;
+        }
+
+        const encoding = typeof options === 'string' ? options : options.encoding;
+        throw new Error(
+            `[path-nice] PathNice.readString: '${encoding}' is not a valid buffer encoding.`,
+        );
+    }
+
+    public readBuffer(
+        options?: {
+            encoding?: null | undefined;
+            flag?: string | number | undefined;
+        } | null,
+    ): Promise<Buffer> {
+        return nodefs.promises.readFile(this.raw, options);
+    }
+
+    public async readJson(): Promise<any> {
+        return JSON.parse(await this.readString());
+    }
+
+    /**
+     * Asynchronously writes data to a file, replacing the file if it already exists.
+     * It is unsafe to call `fsPromises.writeFile()` multiple times on the same file
+     * without waiting for the `Promise` to be resolved (or rejected).
+     *
+     * @param data The data to write. If something other than a `Buffer` or `Uint8Array`
+     * is provided, the value is coerced to a string.
+     * @param options Either the encoding for the file, or an object optionally specifying
+     * the encoding, file mode, and flag.
+     * If `encoding` is not supplied, the default of `'utf8'` is used.
+     * If `mode` is not supplied, the default of `0o666` is used.
+     * If `mode` is a string, it is parsed as an octal integer.
+     * If `flag` is not supplied, the default of `'w'` is used.
+     */
+    public writeFile(
+        data: any,
+        options?:
+            | {
+                  encoding?: string | null | undefined;
+                  mode?: string | number | undefined;
+                  flag?: string | number | undefined;
+              }
+            | string
+            | null,
+    ): Promise<void> {
+        return nodefs.promises.writeFile(this.raw, data, options);
+    }
+
+    public writeJson(
+        data: any,
+        options?:
+            | {
+                  replacer?:
+                      | (number | string)[]
+                      | ((this: any, key: string, value: any) => any)
+                      | null
+                      | undefined;
+                  spaces?: number | string | undefined;
+                  encoding?: string | null | undefined;
+                  mode?: string | number | undefined;
+                  flag?: string | number | undefined;
+              }
+            | string
+            | null,
+    ): Promise<void> {
+        options = typeof options === 'string' ? { encoding: options } : options || {};
+
+        const _options = {} as any;
+        _options.encoding = options.encoding || 'utf-8';
+        _options.mode = options.mode;
+        _options.flag = options.flag;
+
+        return this.writeFile(
+            JSON.stringify(data, options.replacer as any, options.spaces),
+            _options,
+        );
+    }
+
+    public updateString(fn: (original: string) => string): void {}
+    public updateJson(fn: (original: any) => any): void {}
+    public appendFile(): void {}
+    public createReadStream(): void {}
+    public createWriteStream(): void {}
+    public read(): void {}
+    public write(): void {}
+
+    public copyTo(dest: string | PathNice): Promise<void> {}
+    public moveTo(dest: string | PathNice): Promise<void> {}
+    public rename(newPath: string | PathNice): Promise<void> {}
+    public remove(): Promise<void> { }
+    public emptyDir(): Promise<void> { }
+
+    public ensureDir(): Promise<void> {}
+    public ensureFile(): Promise<void> {}
+
+    /**
+     * It is recommended to use `isFile()`, `isDir()`, ...
+     */
+    public exists(): Promise<boolean> {}
+    public async isEmptyDir(): Promise<boolean> {
+        const files = await nodefs.promises.readdir(this.raw);
+        return files.length === 0;
+    }
+    public isDir(): void {}
+    public isFile(): void {}
+    public isSymbolicLink(): void {}
+
+    public readdir(): void {}
+    public ls(
+        recursive?: boolean,
+        followlinks?: boolean,
+    ): Promise<{ dirs: PathNice[]; files: PathNice[] }> {}
+
+    public watch(): void {}
+    public watchFile(): void {}
+
+    public stat(): void {}
+    public chmod(): void {}
+    public chown(): void {}
+
+    // TODO: sync ver
 }
 
 export class ParsedPathNice {

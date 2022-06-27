@@ -13,7 +13,11 @@ All existing code still works, while the `path` evolves.
 
 ```shell
 npm install path-nice
-# or
+```
+
+or
+
+```shell
 yarn add path-nice
 ```
 
@@ -22,6 +26,128 @@ yarn add path-nice
 - ESModule version can be [used directly in Node](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
 
 ## Usage
+
+> ⚠️ The API of this library will reach stability in version 2.0, do not use it in production until then.
+
+Add a pair of `()` after `path` to enter "nice" mode.
+
+#### Path related methods
+
+```ts
+const a = path('path-nice/src')
+
+a.raw                           // 'path-nice/src'
+
+a.join('index.ts')              // path('path-nice/src/index.ts')
+
+a.dotdot or .parent             // 👇 Same to .dirname()
+a.dirname()                     // path('path-nice')
+a.dirname('/work')              // path('/work/src')
+
+a.filename()                    // 'src'
+a.filename('docs')              // path('path-nice/docs')
+
+const b = path('index.ts')
+
+b.ext()                         // '.ts'
+b.ext('.js')                    // path('index.js')
+b.ext(null)                     // path('index')
+
+const c = a.join(b)
+
+c.prefixFilename('old.')        // path('path-nice/src/old.index.ts')
+c.postfixBeforeExt('.old')      // path('path-nice/src/index.old.ts')
+c.postfix('.old')               // path('path-nice/src/index.ts.old')
+
+c.isAbsolute()                  // false
+c.toAbsolute()                  // path('/work/path-nice/src/index.ts'), suppose cwd is '/work'
+c.toRelative('path-nice/docs')  // path('../src/index.ts')
+
+const d = c.toAbsolute().parse()
+
+d.root()                        // '/'
+d.dir()                         // '/work/path-nice/src'
+d.base()                        // 'index.ts'
+d.name()                        // 'index'
+d.ext()                         // '.ts'
+
+d.dir('/home/fuu').ext('.json').format()
+                                // path('/home/fuu/index.json')
+```
+
+
+#### File system related methods
+
+##### Sync ver
+
+##### Read and write
+
+```ts
+.readFile
+.readString
+.readBuffer
+.writeFile
+.writeJson
+.updateString
+.updateJson
+.appendFile
+.createReadStream
+.createWriteStream
+.read
+.write
+```
+
+##### Copy, move and remove
+
+```ts
+.copyTo
+.moveTo
+.rename
+.remove
+.emptyDir
+```
+
+##### Ensure
+
+```ts
+.ensureDir
+.ensureFile
+```
+
+##### Is ... ?
+
+```ts
+.exists
+.isDir, isEmptyDir
+.isFile
+.isSymbolicLink
+```
+
+##### List directory contents
+
+```ts
+.readdir
+.ls(recursive?: boolean, followlinks?: boolean): Promise<{
+    dirs: PathNice[];
+    files: PathNice[];
+}>
+```
+
+##### Watch
+
+```ts
+.watch
+.watchFile
+```
+
+##### Others
+
+```ts
+.stat
+.chmod
+.chown
+```
+
 
 ### Real Case
 
