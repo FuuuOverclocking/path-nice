@@ -27,7 +27,7 @@ yarn add path-nice
 
 ## Usage
 
-> ⚠️ The API of this library will reach stability in version 2.0, do not use it in production until then.
+> ⚠️ The API of this library will be stable in version 2.0, do not use it in production until then.
 
 Add a pair of `()` after `path` to enter "nice" mode.
 
@@ -93,8 +93,7 @@ d.dir('/home/fuu').ext('.json').format()
 .appendFile
 .createReadStream
 .createWriteStream
-.read
-.write
+.open
 ```
 
 ##### Copy, move and remove
@@ -166,11 +165,7 @@ async function build() {
     fs.rmSync(dirDist, { recursive: true, force: true });
 
     // tsc concurrently
-    const { result } = concurrently([
-        'tsc -p tsconfig.cjs.json',
-        'tsc -p tsconfig.esm.json',
-    ]);
-    await result;
+    // ...
 
     // cjs/esm fixup
     fs.writeFileSync(
@@ -200,11 +195,7 @@ async function build() {
     await dirDist.remove();
 
     // tsc concurrently
-    const { result } = concurrently([
-        'tsc -p tsconfig.cjs.json',
-        'tsc -p tsconfig.esm.json',
-    ]);
-    await result;
+    // ...
 
     // cjs/esm fixup
     await dirDist.join('cjs/package.json').writeJson({ type: 'commonjs' });

@@ -422,6 +422,10 @@ export class PathNice {
 
     /**
      * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     *
+     * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
+     *
+     * Asynchronously reads the entire contents of a file.
      */
     public readFile(
         options?: {
@@ -431,6 +435,10 @@ export class PathNice {
     ): Promise<Buffer>;
     /**
      * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     *
+     * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
+     *
+     * Asynchronously reads the entire contents of a file.
      */
     public readFile(
         options:
@@ -439,6 +447,10 @@ export class PathNice {
     ): Promise<string>;
     /**
      * @deprecated Use `.readString()` or `.readBuffer()` instead.
+     *
+     * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
+     *
+     * Asynchronously reads the entire contents of a file.
      */
     public readFile(
         options?:
@@ -455,13 +467,20 @@ export class PathNice {
         return nodefs.promises.readFile(this.raw, options);
     }
 
+    /**
+     * Similar to `.readFile()`, but guaranteed to return a string, using UTF-8 by default.
+     *
+     * Asynchronously reads the entire contents of a file. If an invalid buffer encoding
+     * is specified, an error will be thrown.
+     */
     public readString(
         options?:
             | {
                   encoding?: BufferEncoding | null | undefined;
                   flag?: string | number | undefined;
               }
-            | BufferEncoding,
+            | BufferEncoding
+            | null,
     ): Promise<string> {
         if (!options) {
             options = { encoding: 'utf-8' };
@@ -484,20 +503,41 @@ export class PathNice {
         );
     }
 
+    /**
+     * Similar to `.readFile()`, but guaranteed to return a Buffer.
+     *
+     * Asynchronously reads the entire contents of a file.
+     */
     public readBuffer(
         options?: {
-            encoding?: null | undefined;
             flag?: string | number | undefined;
         } | null,
     ): Promise<Buffer> {
+        if (
+            typeof options === 'string' ||
+            (options && typeof (options as any).encoding === 'string')
+        ) {
+            throw new Error(
+                '[path-nice] PathNice.readBuffer: encoding should not be specified.',
+            );
+        }
         return nodefs.promises.readFile(this.raw, options);
     }
 
-    public async readJson(): Promise<any> {
-        return JSON.parse(await this.readString());
+    /**
+     * Asynchronously reads a JSON file and then parses it into an object.
+     */
+    public async readJson(
+        options?: {
+            flag?: string | number | undefined;
+        } | null,
+    ): Promise<any> {
+        return JSON.parse(await this.readString(options));
     }
 
     /**
+     * Same as `fs.promises.writeFile()`, except the path no longer needs to be specified.
+     *
      * Asynchronously writes data to a file, replacing the file if it already exists.
      * It is unsafe to call `fsPromises.writeFile()` multiple times on the same file
      * without waiting for the `Promise` to be resolved (or rejected).
@@ -525,10 +565,22 @@ export class PathNice {
         return nodefs.promises.writeFile(this.raw, data, options);
     }
 
+    /**
+     * Asynchronously writes an object to a JSON file.
+     *
+     * @param options a string to specify the encoding, or an object:
+     * - options.EOL: set end-of-line character. Default is '\n'.
+     * - options.replacer: as the 2-nd argument to JSON.stringify(). A function that alters the behavior of the stringification process, or an array of strings or numbers naming properties of value that should be included in the output. If replacer is null or not provided, all properties of the object are included in the resulting JSON string.
+     * - options.spaces: as the 3-rd argument to JSON.stringify(). A string or number used to insert white space (including indentation, line break characters, etc.) into the output JSON string for readability purposes.
+     * - options.encoding: use UTF-8 by default.
+     * - options.mode: use 0o666 by default.
+     * - options.flag: use 'w' by default.
+     */
     public writeJson(
         data: any,
         options?:
             | {
+                  EOL?: '\n' | '\r\n';
                   replacer?:
                       | (number | string)[]
                       | ((this: any, key: string, value: any) => any)
@@ -544,30 +596,112 @@ export class PathNice {
     ): Promise<void> {
         options = typeof options === 'string' ? { encoding: options } : options || {};
 
-        const _options = {} as any;
-        _options.encoding = options.encoding || 'utf-8';
-        _options.mode = options.mode;
-        _options.flag = options.flag;
+        const writeOptions = {} as any;
+        writeOptions.encoding = options.encoding || 'utf-8';
+        writeOptions.mode = options.mode;
+        writeOptions.flag = options.flag;
 
-        return this.writeFile(
-            JSON.stringify(data, options.replacer as any, options.spaces),
-            _options,
-        );
+        let json = JSON.stringify(data, options.replacer as any, options.spaces);
+        if (options.EOL && options.EOL !== '\n') {
+            json = json.replace(/\n/g, options.EOL);
+        }
+
+        return this.writeFile(json, writeOptions);
     }
 
-    public updateString(fn: (original: string) => string): void {}
-    public updateJson(fn: (original: any) => any): void {}
-    public appendFile(): void {}
-    public createReadStream(): void {}
-    public createWriteStream(): void {}
-    public read(): void {}
-    public write(): void {}
+    public async updateString(fn: (original: string) => string): Promise<void>;
+    public async updateString(
+        encoding: BufferEncoding,
+        fn: (original: string) => string,
+    ): Promise<void>;
+    public async updateString(arg0: any, arg1?: any): Promise<void> {
+        if (typeof arg0 === 'function') {
+            const str = await this.readString();
+            await this.writeFile(arg0(str));
+        }
+        const str = await this.readString(arg0);
+        await this.writeFile(arg1(str), { encoding: arg0 });
+    }
+
+    public async updateJson(fn: (original: any) => any): Promise<void>;
+    public async updateJson(
+        encoding: BufferEncoding,
+        fn: (original: any) => any,
+    ): Promise<void>;
+    public async updateJson(arg0: any, arg1?: any): Promise<void> {
+        if (typeof arg0 === 'function') {
+            const obj = await this.readJson();
+            await this.writeJson(arg0(obj));
+        }
+        const obj = await this.readString(arg0);
+        await this.writeFile(arg1(obj), { encoding: arg0 });
+    }
+
+    /**
+     * Same as `fs.promises.appendFile()`, except the path no longer needs to be specified.
+     *
+     * Asynchronously append data to a file, creating the file if it does not exist.
+     *
+     * @param data The data to write. If something other than a `Buffer` or `Uint8Array` is provided, the value is coerced to a string.
+     * @param options Either the encoding for the file, or an object optionally specifying the encoding, file mode, and flag.
+     * If `encoding` is not supplied, the default of `'utf8'` is used.
+     * If `mode` is not supplied, the default of `0o666` is used.
+     * If `mode` is a string, it is parsed as an octal integer.
+     * If `flag` is not supplied, the default of `'a'` is used.
+     */
+    public appendFile(
+        data: any,
+        options?:
+            | {
+                  encoding?: string | null | undefined;
+                  mode?: string | number | undefined;
+                  flag?: string | number | undefined;
+              }
+            | string
+            | null,
+    ): Promise<void> {
+        return nodefs.promises.appendFile(this.raw, data, options);
+    }
+
+    public createReadStream(options?: string | {
+        flags?: string | undefined;
+        encoding?: string | undefined;
+        fd?: number | undefined;
+        mode?: number | undefined;
+        autoClose?: boolean | undefined;
+        /**
+         * @default false
+         */
+        emitClose?: boolean | undefined;
+        start?: number | undefined;
+        end?: number | undefined;
+        highWaterMark?: number | undefined;
+    }): nodefs.ReadStream {
+        return nodefs.createReadStream(this.raw, options);
+    }
+
+    public createWriteStream(options?: string | {
+        flags?: string | undefined;
+        encoding?: string | undefined;
+        fd?: number | undefined;
+        mode?: number | undefined;
+        autoClose?: boolean | undefined;
+        emitClose?: boolean | undefined;
+        start?: number | undefined;
+        highWaterMark?: number | undefined;
+    }): nodefs.WriteStream {
+        return nodefs.createWriteStream(this.raw, options);
+    }
+
+    public open(flags: string, mode?: number): Promise<nodefs.promises.FileHandle> {
+        return nodefs.promises.open(flags, mode);
+    }
 
     public copyTo(dest: string | PathNice): Promise<void> {}
     public moveTo(dest: string | PathNice): Promise<void> {}
     public rename(newPath: string | PathNice): Promise<void> {}
-    public remove(): Promise<void> { }
-    public emptyDir(): Promise<void> { }
+    public remove(): Promise<void> {}
+    public emptyDir(): Promise<void> {}
 
     public ensureDir(): Promise<void> {}
     public ensureFile(): Promise<void> {}
