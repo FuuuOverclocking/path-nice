@@ -1,6 +1,8 @@
 import * as nodepath from 'path';
 import * as nodefs from 'fs';
-import { isValidBufferEncoding } from '../common/utils';
+import type { ParsedPath } from '../common/types.js';
+import { isValidBufferEncoding } from '../common/utils/is-valid-buffer-encoding.js';
+import { copy } from '../common/utils/copy.js';
 
 const lowpath = nodepath;
 const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
@@ -39,7 +41,7 @@ export class PathNice {
      * Get (when 0 args) or set (when 1 arg) the path segment separator.
      *
      * When get, return 'none' if there is no separator in the path,
-     * or 'hybrid' if there is both '/' and '\\' separators.
+     * or 'hybrid' if there are both '/' and '\\' separators.
      *
      * @example
      * $ path('/home/fuu/data.json').separator()
@@ -109,14 +111,16 @@ export class PathNice {
      * './dist/index.ts'    // on POSIX
      * '.\\dist\\index.ts'  // on Windows
      */
-    public dirname(newParent?: string | PathNice): PathNice {
-        switch (typeof newParent) {
+    public dirname(newDirname?: string | PathNice): PathNice {
+        switch (typeof newDirname) {
             case 'undefined':
                 return this._new(lowpath.dirname(this.raw));
             case 'string':
-                return this._new(lowpath.join(newParent, lowpath.basename(this.raw)));
+                return this._new(lowpath.join(newDirname, lowpath.basename(this.raw)));
             case 'object':
-                return this._new(lowpath.join(newParent.raw, lowpath.basename(this.raw)));
+                return this._new(
+                    lowpath.join(newDirname.raw, lowpath.basename(this.raw)),
+                );
         }
     }
 
@@ -280,7 +284,7 @@ export class PathNice {
      *
      * $ path('./content.txt').postfix('.json').raw
      * './content.txt.json' // on POSIX
-     * './content.txt.json' // on Windows
+     * '.\\content.txt.json' // on Windows
      */
     public postfix(postfix: string): PathNice {
         const obj = lowpath.parse(this.raw);
@@ -412,8 +416,7 @@ export class PathNice {
      * 'D:\\path-nice\\data.txt'
      */
     public parse(): ParsedPathNice {
-        const obj = lowpath.parse(this.raw);
-        return new ParsedPathNice(obj.root, obj.dir, obj.base, obj.ext, obj.name);
+        return new ParsedPathNice(lowpath.parse(this.raw));
     }
 
     // ==================================================================================
@@ -663,33 +666,41 @@ export class PathNice {
         return nodefs.promises.appendFile(this.raw, data, options);
     }
 
-    public createReadStream(options?: string | {
-        flags?: string | undefined;
-        encoding?: string | undefined;
-        fd?: number | undefined;
-        mode?: number | undefined;
-        autoClose?: boolean | undefined;
-        /**
-         * @default false
-         */
-        emitClose?: boolean | undefined;
-        start?: number | undefined;
-        end?: number | undefined;
-        highWaterMark?: number | undefined;
-    }): nodefs.ReadStream {
+    public createReadStream(
+        options?:
+            | string
+            | {
+                  flags?: string | undefined;
+                  encoding?: string | undefined;
+                  fd?: number | undefined;
+                  mode?: number | undefined;
+                  autoClose?: boolean | undefined;
+                  /**
+                   * @default false
+                   */
+                  emitClose?: boolean | undefined;
+                  start?: number | undefined;
+                  end?: number | undefined;
+                  highWaterMark?: number | undefined;
+              },
+    ): nodefs.ReadStream {
         return nodefs.createReadStream(this.raw, options);
     }
 
-    public createWriteStream(options?: string | {
-        flags?: string | undefined;
-        encoding?: string | undefined;
-        fd?: number | undefined;
-        mode?: number | undefined;
-        autoClose?: boolean | undefined;
-        emitClose?: boolean | undefined;
-        start?: number | undefined;
-        highWaterMark?: number | undefined;
-    }): nodefs.WriteStream {
+    public createWriteStream(
+        options?:
+            | string
+            | {
+                  flags?: string | undefined;
+                  encoding?: string | undefined;
+                  fd?: number | undefined;
+                  mode?: number | undefined;
+                  autoClose?: boolean | undefined;
+                  emitClose?: boolean | undefined;
+                  start?: number | undefined;
+                  highWaterMark?: number | undefined;
+              },
+    ): nodefs.WriteStream {
         return nodefs.createWriteStream(this.raw, options);
     }
 
@@ -697,7 +708,26 @@ export class PathNice {
         return nodefs.promises.open(flags, mode);
     }
 
-    public copyTo(dest: string | PathNice): Promise<void> {}
+    public copyTo(
+        dest: string | PathNice,
+        options?: {
+            force?: boolean | null | undefined;
+            dereference?: boolean | null | undefined;
+            errorOnExist?: boolean | null | undefined;
+            filter?: ((src: string, dest: string) => boolean) | null | undefined;
+            preserveTimestamps?: boolean | null | undefined;
+            recursive: boolean;
+            verbatimSymlinks?: boolean | null | undefined;
+        } | null,
+    ): Promise<void> {
+        return copy(
+            nodefs,
+            this.raw,
+            typeof dest === 'string' ? dest : dest.raw,
+            options,
+        );
+    }
+
     public moveTo(dest: string | PathNice): Promise<void> {}
     public rename(newPath: string | PathNice): Promise<void> {}
     public remove(): Promise<void> {}
@@ -735,28 +765,14 @@ export class PathNice {
 }
 
 export class ParsedPathNice {
-    constructor(
-        private _root: string,
-        private _dir: string,
-        private _base: string,
-        private _ext: string,
-        private _name: string,
-    ) {}
+    constructor(private raw: ParsedPath) {}
 
-    public valueOf(): string {
-        return this.toString();
+    public valueOf(): ParsedPath {
+        return this.raw;
     }
 
     public format(): PathNice {
-        return new PathNice(
-            lowpath.format({
-                root: this._root,
-                dir: this._dir,
-                base: this._base,
-                ext: this._ext,
-                name: this._name,
-            }),
-        );
+        return new PathNice(lowpath.format(this.raw));
     }
 
     /**
@@ -766,10 +782,10 @@ export class ParsedPathNice {
     public root(newRoot: string): this;
     public root(newRoot?: string): string | this {
         if (typeof newRoot === 'string') {
-            this._root = newRoot;
+            this.raw.root = newRoot;
             return this;
         }
-        return this._root;
+        return this.raw.root;
     }
 
     /**
@@ -779,10 +795,10 @@ export class ParsedPathNice {
     public dir(newDir: string): this;
     public dir(newDir?: string): string | this {
         if (typeof newDir === 'string') {
-            this._dir = newDir;
+            this.raw.dir = newDir;
             return this;
         }
-        return this._dir;
+        return this.raw.dir;
     }
 
     /**
@@ -792,10 +808,10 @@ export class ParsedPathNice {
     public base(newBase: string): this;
     public base(newBase?: string): string | this {
         if (typeof newBase === 'string') {
-            this._base = newBase;
+            this.raw.base = newBase;
             return this;
         }
-        return this._base;
+        return this.raw.base;
     }
 
     /**
@@ -805,10 +821,10 @@ export class ParsedPathNice {
     public ext(newExt: string): this;
     public ext(newExt?: string): string | this {
         if (typeof newExt === 'string') {
-            this._ext = newExt;
+            this.raw.ext = newExt;
             return this;
         }
-        return this._ext;
+        return this.raw.ext;
     }
 
     /**
@@ -818,9 +834,9 @@ export class ParsedPathNice {
     public name(newName: string): this;
     public name(newName?: string): string | this {
         if (typeof newName === 'string') {
-            this._name = newName;
+            this.raw.name = newName;
             return this;
         }
-        return this._name;
+        return this.raw.name;
     }
 }

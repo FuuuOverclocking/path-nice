@@ -11,12 +11,10 @@ export interface Path extends _PlatformPath {
     /**
      * Get a new instance of PathNice.
      *
-     * @param str the path string
-     * @param forceSep if set, force the given char to be used as the separator of path.
-     * @param fs you can replace the original fs with something like memfs that has
-     *           a file system API.
+     * @param paths usually only one path should be given; if multiple, join them
+     * together; if zero, the path will be '.'
      */
-    (str: string, forceSep?: '/' | '\\', fs?: FileSystem): PathNice;
+    (...paths: Array<string | PathNice>): PathNice;
 }
 
 export interface PathPosix extends _PlatformPath {
@@ -28,6 +26,8 @@ export interface PathPosix extends _PlatformPath {
      *           a file system API.
      */
     <P extends string>(str: P, fs?: FileSystem): PathNicePosix<P>;
+
+    bindFS(fs: FileSystem): PathPosix;
 }
 
 export interface PathWin32 extends _PlatformPath {
@@ -39,6 +39,8 @@ export interface PathWin32 extends _PlatformPath {
      *           a file system API.
      */
     <P extends string>(str: P, fs?: FileSystem): PathNiceWin32<P>;
+
+    bindFS(fs: FileSystem): PathWin32;
 }
 
 interface _PlatformPath extends PlatformPath {
