@@ -604,7 +604,7 @@ export class PathNice {
         writeOptions.mode = options.mode;
         writeOptions.flag = options.flag;
 
-        let json = JSON.stringify(data, options.replacer as any, options.spaces);
+        let json = JSON.stringify(data, options.replacer as any, options.spaces || 4);
         if (options.EOL && options.EOL !== '\n') {
             json = json.replace(/\n/g, options.EOL);
         }
@@ -721,6 +721,7 @@ export class PathNice {
         } | null,
     ): Promise<void> {
         return copy(
+            lowpath as any,
             nodefs,
             this.raw,
             typeof dest === 'string' ? dest : dest.raw,

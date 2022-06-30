@@ -12,7 +12,7 @@
 
 ## Why this lib?
 
-**一个库搞定 `path` 与 `fs`, 还能大大缩短代码**
+### 一个库搞定 `path` 与 `fs`, 还能大大缩短代码
 
 原始版 👇
 
@@ -33,11 +33,11 @@ const filename = src.join('index.ts');
 await filename.writeFile('export default 42;')
 ```
 
-**注释翔实, 文档不用翻, 例子全都有**
+### 注释翔实, 文档不用翻, 例子全都有
 
 ![](./docs/images/jsdoc.png)
 
-**支持指定其他 fs, 例如内存文件系统 [memfs](https://github.com/streamich/memfs)**
+### 支持指定其他 fs, 例如内存文件系统 [memfs](https://github.com/streamich/memfs)
 
 ```ts
 import path from 'path-nice';
@@ -45,13 +45,13 @@ import { fs } from 'memfs';
 
 const mpath = path
     .posix          // 强制使用 POSIX 风格的路径
-    .bindFS(memfs); // 绑定内存文件系统 fs
+    .bindFS(memfs); // 绑定文件系统
 
 await mpath('/index.ts')
     .writeFile('export default 42;');
 ```
 
-**元编程加持, 路径是啥, 编译时就知道**
+### 元编程加持, 路径是啥, 编译时就知道
 
 (仅 POSIX 版本具有该能力)
 

@@ -12,7 +12,7 @@ All existing code still works, while the `path` evolves.
 
 ## Why this lib?
 
-**Just one lib to replace `path` and `fs`, also shortens the code considerably**
+### One lib against `path` and `fs`, shortens the code considerably
 
 Original ver 👇
 
@@ -33,11 +33,11 @@ const filename = src.join('index.ts');
 await filename.writeFile('export default 42;')
 ```
 
-**Informative comments, no need to go through docs, examples are all there**
+### Informative comments, no need to go through docs, examples are all there
 
 ![](./docs/images/jsdoc.png)
 
-**Support for specifying other fs, e.g. memory file system [memfs](https://github.com/streamich/memfs)**
+### Support for specifying other fs, e.g. memory file system [memfs](https://github.com/streamich/memfs)
 
 ```ts
 import path from 'path-nice';
@@ -51,7 +51,7 @@ await mpath('/index.ts')
     .writeFile('export default 42;');
 ```
 
-**Metaprogramming, the path is known at compile time**
+### Metaprogramming, the path is known at compile time
 
 (POSIX only)
 

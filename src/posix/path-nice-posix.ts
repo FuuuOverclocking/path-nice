@@ -7,12 +7,12 @@ const lowpath = nodepath.posix;
 
 export class PathNicePosix<P extends string> {
     /** Raw path string. */
-    public readonly str: P;
+    public readonly raw: P;
 
     private readonly fs: FileSystem;
 
     constructor(str: P, fs?: FileSystem) {
-        this.str = str;
+        this.raw = str;
         this.fs = fs || nodefs;
     }
 
@@ -23,6 +23,6 @@ export class PathNicePosix<P extends string> {
     public join<Paths extends string[]>(
         ...paths: Paths
     ): PathNicePosix<Join<[P, ...Paths]>> {
-        return this._new(lowpath.join(this.str, ...paths)) as any;
+        return this._new(lowpath.join(this.raw, ...paths)) as any;
     }
 }

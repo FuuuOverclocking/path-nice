@@ -1,5 +1,4 @@
-import { dirname, isAbsolute, join, parse, resolve, sep } from 'path';
-import { FileSystem } from '../types.js';
+import type { FileSystem, PlatformPath } from '../types.js';
 
 // This file is a modified version of the fs's cp method.
 // https://github.com/nodejs/node/blob/main/lib/internal/fs/cp/cp.js
@@ -17,14 +16,14 @@ type CopyOptions =
     | undefined
     | null;
 
-const normalizePathToArray = (path: string) => resolve(path).split(sep).filter(Boolean);
-
 export async function copy(
+    path: PlatformPath,
     fs: FileSystem,
     src: string,
     dest: string,
     options?: CopyOptions,
 ): Promise<void> {
+    const { dirname, isAbsolute, join, parse, resolve, sep } = path;
     const {
         chmod,
         copyFile,
@@ -145,6 +144,10 @@ export async function copy(
         return checkParentPaths(src, srcStat, destParent);
     }
 
+    function normalizePathToArray(path: string) {
+        return resolve(path).split(sep).filter(Boolean);
+    }
+
     // Return true if dest is a subdir of src, otherwise false.
     // It only checks the path strings.
     function isSrcSubdir(src: string, dest: string) {
@@ -192,9 +195,7 @@ export async function copy(
         } else if (srcStat.isFIFO()) {
             throw new Error(`[path-nice] .copyTo: cannot copy a FIFO pipe: ${dest}`);
         }
-        throw new Error(
-            `[path-nice] .copyTo: cannot copy an unknown file type: ${dest}`,
-        );
+        throw new Error(`[path-nice] .copyTo: cannot copy an unknown file type: ${dest}`);
     }
 
     function onFile(srcStat: any, destStat: any, src: any, dest: any, opts: any) {
@@ -301,8 +302,10 @@ export async function copy(
             resolvedDest = resolve(dirname(dest), resolvedDest);
         }
         if (isSrcSubdir(resolvedSrc, resolvedDest)) {
-            throw new Error(`[path-nice] .copyTo: cannot copy ${resolvedSrc} to a subdirectory of self ` +
-                    `${resolvedDest}`);
+            throw new Error(
+                `[path-nice] .copyTo: cannot copy ${resolvedSrc} to a subdirectory of self ` +
+                    `${resolvedDest}`,
+            );
         }
         // Do not copy if src is a subdir of dest since unlinking
         // dest in this case would result in removing src contents
