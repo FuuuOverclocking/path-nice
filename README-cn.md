@@ -1,20 +1,20 @@
 # path-nice
 
-English | [简体中文](./README-cn.md)
+[English](README.md) | 简体中文
 
-`path-nice` - How `path` and `fs` should be designed.
+`path-nice` - `path` 与 `fs` 应有的设计.
 
-If sometimes you do not feel nice about `path` or `fs` of Node.js, then just
+如果有时你对 Node.js 的原装 `path` 与 `fs` 感到不 nice, 那么只需
 
-![Add nice here](./docs/images/add-nice-here.png)
+![Add nice here](docs/images/add-nice-here-cn.png)
 
-All existing code still works, while the `path` evolves.
+现有代码依然正常工作, 但 `path` 却已进化.
 
 ## Why this lib?
 
-**Just one lib to replace `path` and `fs`, also shortens the code considerably**
+**一个库搞定 `path` 与 `fs`, 还能大大缩短代码**
 
-Original ver 👇
+原始版 👇
 
 ```ts
 const src = path.resolve('./src');
@@ -25,7 +25,7 @@ await fs.promises.writeFile(
 );
 ```
 
-nice ver 👇
+nice 版 👇
 
 ```ts
 const src = path('./src').toAbsolute();
@@ -33,51 +33,51 @@ const filename = src.join('index.ts');
 await filename.writeFile('export default 42;')
 ```
 
-**Informative comments, no need to go through docs, examples are all there**
+**注释翔实, 文档不用翻, 例子全都有**
 
 ![](./docs/images/jsdoc.png)
 
-**Support for specifying other fs, e.g. memory file system [memfs](https://github.com/streamich/memfs)**
+**支持指定其他 fs, 例如内存文件系统 [memfs](https://github.com/streamich/memfs)**
 
 ```ts
 import path from 'path-nice';
 import { fs } from 'memfs';
 
 const mpath = path
-    .posix          // Use POSIX-style paths
-    .bindFS(memfs); // bind file system
+    .posix          // 强制使用 POSIX 风格的路径
+    .bindFS(memfs); // 绑定内存文件系统 fs
 
 await mpath('/index.ts')
     .writeFile('export default 42;');
 ```
 
-**Metaprogramming, the path is known at compile time**
+**元编程加持, 路径是啥, 编译时就知道**
 
-(POSIX only)
+(仅 POSIX 版本具有该能力)
 
 ![](docs/images/meta-programming.png)
 
-## Installation
+## 安装
 
 ```shell
 npm install path-nice
 ```
 
-or
+或者
 
 ```shell
 yarn add path-nice
 ```
 
-- Requires: Node.js >= v12.0.0
-- Provided: CommonJS, ESModule and TypeScript typings
-- ESModule version can be [used directly in Node](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
+- 要求: Node.js >= v12.0.0
+- 提供: CommonJS, ESModule 和 TypeScript typings
+- ESModule 版本可以[直接在 Node 中使用](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
 
-## Usage
+## 用法
 
-> ⚠️ The API of this library will be stable in version 2.0, do not use it in production until then.
+> ⚠️ 这个库的 API 将在 2.0 版达到稳定, 在此之前请勿在生产中使用.
 
-Add a pair of `()` after `path` to enter "nice" mode.
+在 `path` 后添加一对 `()` 以进入 "nice" 模式.
 
 ```ts
 import path from 'path-nice'
@@ -88,7 +88,7 @@ pkg instanceof path.PathNice    // true
 Object.isFrozen(pkg)            // true
 ```
 
-### Path related methods
+### Path 相关方法
 
 ```ts
 const a = path('path-nice/src')
@@ -133,7 +133,7 @@ d.dir('/home/fuu').ext('.json').format()
 ```
 
 
-### File system related methods
+### 文件系统相关方法
 
 #### Promise ver
 
@@ -204,10 +204,9 @@ d.dir('/home/fuu').ext('.json').format()
 .chown
 ```
 
+#### 真实用例
 
-### Real Case
-
-This is the build script (`scripts/build.js`) of this library, which doesn't look nice (after all, we can't build it with itself) :
+这是这个库的构建脚本 (`scripts/build.js`), 它看上去不是很 nice (但毕竟我们不能令它自己构建自己):
 
 ```js
 const path = require('path');
@@ -238,7 +237,7 @@ async function build() {
 }
 ```
 
-Use `path-nice` instead:
+如果用上 `path-nice` :
 
 ```js
 const path = require('path-nice');
