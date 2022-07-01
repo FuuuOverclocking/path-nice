@@ -1,40 +1,35 @@
-import type { FileSystem, PlatformPath } from '../types.js';
+import type { FileSystem, PlatformPath } from './types.js';
+import type { BigIntStats } from 'fs';
 
 // This file is a modified version of the fs's cp method.
+// BTW, fs's cp method is a modified version of the fs-extra's copy method.
 // https://github.com/nodejs/node/blob/main/lib/internal/fs/cp/cp.js
 
-type CopyOptions =
-    | {
-          force?: boolean | null | undefined;
-          dereference?: boolean | null | undefined;
-          errorOnExist?: boolean | null | undefined;
-          filter?: ((src: string, dest: string) => boolean) | null | undefined;
-          preserveTimestamps?: boolean | null | undefined;
-          recursive?: boolean | null | undefined;
-          verbatimSymlinks?: boolean | null | undefined;
-      }
-    | undefined
-    | null;
+type CopyOptions = {
+    force?: boolean | null | undefined;
+    dereference?: boolean | null | undefined;
+    errorOnExist?: boolean | null | undefined;
+    filter?:
+        | ((src: string, dest: string) => boolean | Promise<boolean>)
+        | null
+        | undefined;
+    preserveTimestamps?: boolean | null | undefined;
+    recursive?: boolean | null | undefined;
+    verbatimSymlinks?: boolean | null | undefined;
+};
 
 export async function copy(
     path: PlatformPath,
     fs: FileSystem,
     src: string,
     dest: string,
-    options?: CopyOptions,
+    options?: CopyOptions | null,
 ): Promise<void> {
     const { dirname, isAbsolute, join, parse, resolve, sep } = path;
+    // prettier-ignore
     const {
-        chmod,
-        copyFile,
-        lstat,
-        mkdir,
-        readdir,
-        readlink,
-        stat,
-        symlink,
-        unlink,
-        utimes,
+        chmod, copyFile, lstat, mkdir, readdir,
+        readlink, stat, symlink, unlink, utimes,
     } = fs.promises;
 
     options ??= {};
@@ -43,7 +38,7 @@ export async function copy(
     // Warn about using preserveTimestamps on 32-bit node
     if (options.preserveTimestamps && process.arch === 'ia32') {
         const warning =
-            'Using the preserveTimestamps option in 32-bit ' + 'node is not recommended';
+            'Using the preserveTimestamps option in 32-bit node is not recommended';
         process.emitWarning(warning, 'TimestampPrecisionWarning');
     }
     const stats = await checkPaths(src, dest, options);
@@ -54,8 +49,15 @@ export async function copy(
     }
     return checkParentDir(destStat, src, dest, options);
 
-    async function checkPaths(src: string, dest: string, opts?: CopyOptions) {
-        const { 0: srcStat, 1: destStat } = await getStats(src, dest, opts);
+    async function checkPaths(
+        src: string,
+        dest: string,
+        options: CopyOptions,
+    ): Promise<{
+        srcStat: BigIntStats;
+        destStat: BigIntStats | null;
+    }> {
+        const { 0: srcStat, 1: destStat } = await getStats(src, dest, options);
         if (destStat) {
             if (areIdentical(srcStat, destStat)) {
                 throw new Error(`[path-nice] .copyTo: src and dest cannot be the same`);
@@ -82,17 +84,21 @@ export async function copy(
         return { srcStat, destStat };
     }
 
-    function areIdentical(srcStat: any, destStat: any) {
+    function areIdentical(srcStat: BigIntStats, destStat: BigIntStats): boolean {
         return (
-            destStat.ino &&
-            destStat.dev &&
+            destStat.ino != null &&
+            destStat.dev != null &&
             destStat.ino === srcStat.ino &&
             destStat.dev === srcStat.dev
         );
     }
 
-    function getStats(src: string, dest: string, opts: CopyOptions) {
-        const statFunc = opts?.dereference
+    function getStats(
+        src: string,
+        dest: string,
+        options: CopyOptions,
+    ): Promise<[BigIntStats, BigIntStats | null]> {
+        const statFunc = options?.dereference
             ? (file: string) => stat(file, { bigint: true })
             : (file: string) => lstat(file, { bigint: true });
         return Promise.all([
@@ -101,18 +107,23 @@ export async function copy(
                 if (err.code === 'ENOENT') return null;
                 throw err;
             }),
-        ]);
+        ]) as Promise<[BigIntStats, BigIntStats | null]>;
     }
 
-    async function checkParentDir(destStat: any, src: any, dest: any, opts: any) {
+    async function checkParentDir(
+        destStat: BigIntStats | null,
+        src: string,
+        dest: string,
+        options: CopyOptions,
+    ): Promise<void> {
         const destParent = dirname(dest);
         const dirExists = await pathExists(destParent);
-        if (dirExists) return getStatsForCopy(destStat, src, dest, opts);
+        if (dirExists) return getStatsForCopy(destStat, src, dest, options);
         await mkdir(destParent, { recursive: true });
-        return getStatsForCopy(destStat, src, dest, opts);
+        return getStatsForCopy(destStat, src, dest, options);
     }
 
-    function pathExists(dest: any) {
+    function pathExists(dest: string): Promise<boolean> {
         return stat(dest).then(
             () => true,
             (err) => (err.code === 'ENOENT' ? false : Promise.reject(err)),
@@ -123,15 +134,19 @@ export async function copy(
     // It works for all file types including symlinks since it
     // checks the src and dest inodes. It starts from the deepest
     // parent and stops once it reaches the src parent or the root path.
-    async function checkParentPaths(src: any, srcStat: any, dest: any): Promise<any> {
+    async function checkParentPaths(
+        src: string,
+        srcStat: BigIntStats,
+        dest: string,
+    ): Promise<void> {
         const srcParent = resolve(dirname(src));
         const destParent = resolve(dirname(dest));
         if (destParent === srcParent || destParent === parse(destParent).root) {
             return;
         }
-        let destStat;
+        let destStat: BigIntStats;
         try {
-            destStat = await stat(destParent, { bigint: true });
+            destStat = (await stat(destParent, { bigint: true })) as BigIntStats;
         } catch (err: any) {
             if (err.code === 'ENOENT') return;
             throw err;
@@ -144,13 +159,13 @@ export async function copy(
         return checkParentPaths(src, srcStat, destParent);
     }
 
-    function normalizePathToArray(path: string) {
+    function normalizePathToArray(path: string): string[] {
         return resolve(path).split(sep).filter(Boolean);
     }
 
     // Return true if dest is a subdir of src, otherwise false.
     // It only checks the path strings.
-    function isSrcSubdir(src: string, dest: string) {
+    function isSrcSubdir(src: string, dest: string): boolean {
         const srcArr = normalizePathToArray(src);
         const destArr = normalizePathToArray(dest);
 
@@ -158,28 +173,33 @@ export async function copy(
     }
 
     async function handleFilter(
-        onInclude: any,
-        destStat: any,
-        src: any,
-        dest: any,
-        opts: any,
+        onInclude: (
+            destStat: BigIntStats | null,
+            src: string,
+            dest: string,
+            options: CopyOptions,
+        ) => any,
+        destStat: BigIntStats | null,
+        src: string,
+        dest: string,
+        options: CopyOptions,
     ) {
-        const include = await opts.filter(src, dest);
-        if (include) return onInclude(destStat, src, dest, opts);
+        const include = await options!.filter!(src, dest);
+        if (include) return onInclude(destStat, src, dest, options);
     }
 
-    function startCopy(destStat: any, src: any, dest: any, opts: any) {
-        if (opts.filter) {
-            return handleFilter(getStatsForCopy, destStat, src, dest, opts);
+    function startCopy(destStat: any, src: any, dest: any, options: any) {
+        if (options.filter) {
+            return handleFilter(getStatsForCopy, destStat, src, dest, options);
         }
-        return getStatsForCopy(destStat, src, dest, opts);
+        return getStatsForCopy(destStat, src, dest, options);
     }
 
-    async function getStatsForCopy(destStat: any, src: any, dest: any, opts: any) {
-        const statFn = opts.dereference ? stat : lstat;
+    async function getStatsForCopy(destStat: any, src: any, dest: any, options: any) {
+        const statFn = options.dereference ? stat : lstat;
         const srcStat = await statFn(src);
-        if (srcStat.isDirectory() && opts.recursive) {
-            return onDir(srcStat, destStat, src, dest, opts);
+        if (srcStat.isDirectory() && options.recursive) {
+            return onDir(srcStat, destStat, src, dest, options);
         } else if (srcStat.isDirectory()) {
             throw new Error(`[path-nice] .copyTo: ${src} is a directory (not copied)`);
         } else if (
@@ -187,9 +207,9 @@ export async function copy(
             srcStat.isCharacterDevice() ||
             srcStat.isBlockDevice()
         ) {
-            return onFile(srcStat, destStat, src, dest, opts);
+            return onFile(srcStat, destStat, src, dest, options);
         } else if (srcStat.isSymbolicLink()) {
-            return onLink(destStat, src, dest, opts);
+            return onLink(destStat, src, dest, options);
         } else if (srcStat.isSocket()) {
             throw new Error(`[path-nice] .copyTo: cannot copy a socket file: ${dest}`);
         } else if (srcStat.isFIFO()) {
@@ -198,23 +218,23 @@ export async function copy(
         throw new Error(`[path-nice] .copyTo: cannot copy an unknown file type: ${dest}`);
     }
 
-    function onFile(srcStat: any, destStat: any, src: any, dest: any, opts: any) {
-        if (!destStat) return _copyFile(srcStat, src, dest, opts);
-        return mayCopyFile(srcStat, src, dest, opts);
+    function onFile(srcStat: any, destStat: any, src: any, dest: any, options: any) {
+        if (!destStat) return _copyFile(srcStat, src, dest, options);
+        return mayCopyFile(srcStat, src, dest, options);
     }
 
-    async function mayCopyFile(srcStat: any, src: any, dest: any, opts: any) {
-        if (opts.force) {
+    async function mayCopyFile(srcStat: any, src: any, dest: any, options: any) {
+        if (options.force) {
             await unlink(dest);
-            return _copyFile(srcStat, src, dest, opts);
-        } else if (opts.errorOnExist) {
+            return _copyFile(srcStat, src, dest, options);
+        } else if (options.errorOnExist) {
             throw new Error(`[path-nice] .copyTo: ${dest} already exists`);
         }
     }
 
-    async function _copyFile(srcStat: any, src: any, dest: any, opts: any) {
+    async function _copyFile(srcStat: any, src: any, dest: any, options: any) {
         await copyFile(src, dest);
-        if (opts.preserveTimestamps) {
+        if (options.preserveTimestamps) {
             return handleTimestampsAndMode(srcStat.mode, src, dest);
         }
         return setDestMode(dest, srcStat.mode);
@@ -256,31 +276,31 @@ export async function copy(
         return utimes(dest, updatedSrcStat.atime, updatedSrcStat.mtime);
     }
 
-    function onDir(srcStat: any, destStat: any, src: any, dest: any, opts: any) {
-        if (!destStat) return mkDirAndCopy(srcStat.mode, src, dest, opts);
-        return copyDir(src, dest, opts);
+    function onDir(srcStat: any, destStat: any, src: any, dest: any, options: any) {
+        if (!destStat) return mkDirAndCopy(srcStat.mode, src, dest, options);
+        return copyDir(src, dest, options);
     }
 
-    async function mkDirAndCopy(srcMode: any, src: any, dest: any, opts: any) {
+    async function mkDirAndCopy(srcMode: any, src: any, dest: any, options: any) {
         await mkdir(dest);
-        await copyDir(src, dest, opts);
+        await copyDir(src, dest, options);
         return setDestMode(dest, srcMode);
     }
 
-    async function copyDir(src: any, dest: any, opts: any) {
+    async function copyDir(src: any, dest: any, options: any) {
         const dir: any = await (readdir as any)(src, { withFileTypes: true });
 
         for (const { name } of dir) {
             const srcItem = join(src, name);
             const destItem = join(dest, name);
-            const { destStat } = await checkPaths(srcItem, destItem, opts);
-            await startCopy(destStat, srcItem, destItem, opts);
+            const { destStat } = await checkPaths(srcItem, destItem, options);
+            await startCopy(destStat, srcItem, destItem, options);
         }
     }
 
-    async function onLink(destStat: any, src: any, dest: any, opts: any) {
+    async function onLink(destStat: any, src: any, dest: any, options: any) {
         let resolvedSrc = (await readlink(src)) as string;
-        if (!opts.verbatimSymlinks && !isAbsolute(resolvedSrc)) {
+        if (!options.verbatimSymlinks && !isAbsolute(resolvedSrc)) {
             resolvedSrc = resolve(dirname(src), resolvedSrc);
         }
         if (!destStat) {

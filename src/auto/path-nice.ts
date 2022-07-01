@@ -2,7 +2,9 @@ import * as nodepath from 'path';
 import * as nodefs from 'fs';
 import type { ParsedPath } from '../common/types.js';
 import { isValidBufferEncoding } from '../common/utils/is-valid-buffer-encoding.js';
-import { copy } from '../common/utils/copy.js';
+import { copy } from '../common/copy.js';
+import { move } from '../common/move.js';
+import { remove } from '../common/remove.js';
 
 const lowpath = nodepath;
 const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
@@ -369,6 +371,10 @@ export class PathNice {
         return this._new(lowpath.relative(relativeTo.raw, this.raw));
     }
 
+    public async realpath(): Promise<PathNice> {
+        return this._new(await nodefs.promises.realpath(this.raw, 'utf-8'));
+    }
+
     /**
      * Return an object whose properties represent significant elements of the path.
      *
@@ -729,12 +735,45 @@ export class PathNice {
         );
     }
 
-    public moveTo(dest: string | PathNice): Promise<void> {}
-    public rename(newPath: string | PathNice): Promise<void> {}
-    public remove(): Promise<void> {}
-    public emptyDir(): Promise<void> {}
+    public moveTo(
+        dest: string | PathNice,
+        options?: {
+            overwrite?: boolean | null | undefined;
+        } | null,
+    ): Promise<void> {
+        return move(
+            lowpath as any,
+            nodefs,
+            this.raw,
+            typeof dest === 'string' ? dest : dest.raw,
+            options,
+        );
+    }
+    public rename(newPath: string | PathNice): Promise<void> {
+        return nodefs.promises.rename(
+            this.raw,
+            typeof newPath === 'string' ? newPath : newPath.raw,
+        );
+    }
 
-    public ensureDir(): Promise<void> {}
+    public remove(): Promise<void> {
+        return remove(nodefs, this.raw);
+    }
+
+    public async emptyDir(): Promise<void> {
+        const files = await nodefs.promises.readdir(this.raw);
+        await Promise.all(
+            files.map((f) => {
+                const target = lowpath.join(this.raw, f);
+                return remove(nodefs, target);
+            }),
+        );
+    }
+
+    public async ensureDir(options?: { mode?: number | string | undefined }): Promise<void> {
+        await nodefs.promises.mkdir(this.raw, { recursive: true, ...options });
+    }
+    
     public ensureFile(): Promise<void> {}
 
     /**

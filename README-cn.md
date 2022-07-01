@@ -119,6 +119,8 @@ c.postfix('.old')               // path('path-nice/src/index.ts.old')
 c.isAbsolute()                  // false
 c.toAbsolute()                  // path('/work/path-nice/src/index.ts'), suppose cwd is '/work'
 c.toRelative('path-nice/docs')  // path('../src/index.ts')
+await c.realpath()              // path('/work/path-nice/src/index.ts'), suppose cwd is '/work',
+                                // and there are no symbolic links here.
 
 const d = c.toAbsolute().parse()
 
@@ -205,6 +207,10 @@ d.dir('/home/fuu').ext('.json').format()
 ```
 
 #### 真实用例
+
+##### react-scripts/config/paths.js
+
+##### `path-nice` 的构建脚本
 
 这是这个库的构建脚本 (`scripts/build.js`), 它看上去不是很 nice (但毕竟我们不能令它自己构建自己):
 
