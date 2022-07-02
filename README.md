@@ -1,12 +1,12 @@
 # path-nice
 
-English | [简体中文](./README-cn.md)
+English | [简体中文](README-cn.md)
 
 `path-nice` - How `path` and `fs` should be designed.
 
 If sometimes you do not feel nice about `path` or `fs` of Node.js, then just
 
-![Add nice here](./docs/images/add-nice-here.png)
+![Add nice here](docs/images/add-nice-here.png)
 
 All existing code still works, while the `path` evolves.
 
@@ -35,7 +35,7 @@ await filename.writeFile('export default 42;')
 
 ### Informative comments, no need to go through docs, examples are all there
 
-![](./docs/images/jsdoc.png)
+![](docs/images/jsdoc.png)
 
 ### Support for specifying other fs, e.g. memory file system [memfs](https://github.com/streamich/memfs)
 

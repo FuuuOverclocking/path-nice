@@ -4,7 +4,7 @@
 
 `path-nice` - `path` 与 `fs` 应有的设计.
 
-如果有时你对 Node.js 的原装 `path` 与 `fs` 感到不 nice, 那么只需
+如果有时你对 Node.js 的原装 `path` 与 `fs` 觉得不 nice, 那么只需
 
 ![Add nice here](docs/images/add-nice-here-cn.png)
 
@@ -35,7 +35,7 @@ await filename.writeFile('export default 42;')
 
 ### 注释翔实, 文档不用翻, 例子全都有
 
-![](./docs/images/jsdoc.png)
+![](docs/images/jsdoc.png)
 
 ### 支持指定其他 fs, 例如内存文件系统 [memfs](https://github.com/streamich/memfs)
 
@@ -97,7 +97,7 @@ a.raw                           // 'path-nice/src'
 
 a.join('index.ts')              // path('path-nice/src/index.ts')
 
-a.dotdot or .parent             // 👇 Same to .dirname()
+a.parent                        // 👇 Same to .dirname()
 a.dirname()                     // path('path-nice')
 a.dirname('/work')              // path('/work/src')
 
@@ -202,6 +202,7 @@ d.dir('/home/fuu').ext('.json').format()
 
 ```ts
 .stat
+.lstat
 .chmod
 .chown
 ```

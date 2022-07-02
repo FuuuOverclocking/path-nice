@@ -15,40 +15,29 @@
     "engines": {
         "node": ">=12"
     },
-    "main": "./dist/cjs/index.cjs.js",
-    "module": "./dist/esm/index.esm.js",
-    "types": "./dist/esm/index.esm.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/esm/index.esm.d.ts",
-            "import": "./dist/esm/index.esm.js",
-            "require": "./dist/cjs/index.cjs.js"
-        },
-        "./posix": {
-            "types": "./dist/esm/posix.esm.d.ts",
-            "import": "./dist/esm/posix.esm.js",
-            "require": "./dist/cjs/posix.cjs.js"
-        },
-        "./win32": {
-            "types": "./dist/esm/win32.esm.d.ts",
-            "import": "./dist/esm/win32.esm.js",
-            "require": "./dist/cjs/win32.cjs.js"
-        }
-    },
+    "main": "See ./scripts/prerelease.js",
+    "module": "See scripts/prerelease.js",
+    "types": "See scripts/prerelease.js",
+    "exports": "See scripts/prerelease.js",
     "scripts": {
-        "build": "node ./scripts/build.js",
-        "watch:cjs": "tsc -w -p tsconfig.cjs.json",
-        "watch:esm": "tsc -w -p tsconfig.esm.json",
+        "build": "tsc -p tsconfig.cjs.json",
+        "watch": "tsc -w -p tsconfig.cjs.json",
+        "test": "jest",
+        "docs": "typedoc --options typedoc.json",
         "cz": "cz"
     },
     "devDependencies": {
         "@types/fs-extra": "^9.0.13",
+        "@types/jest": "^28.1.4",
         "@types/node": "^12.12.6",
+        "commitizen": "^4.2.4",
         "concurrently": "^7.2.2",
         "cz-conventional-changelog": "3.3.0",
         "fs-extra": "^10.1.0",
+        "jest": "^28.1.2",
         "memfs": "^3.4.6",
         "prettier": "^2.7.1",
+        "ts-jest": "^28.0.5",
         "typedoc": "^0.22.18",
         "typescript": "^4.7.4"
     },

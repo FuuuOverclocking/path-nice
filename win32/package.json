@@ -1,7 +1,0 @@
-{
-    "name": "path-nice",
-    "description": "Forget fs and path. This is THE PKG that can definitely save you life.",
-    "main": "../dist/cjs/win32.cjs.js",
-    "module": "../dist/esm/win32.esm.js",
-    "types": "../dist/esm/win32.esm.d.ts"
-}

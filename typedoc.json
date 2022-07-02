@@ -1,0 +1,11 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["./src/index.esm.ts"],
+    "cleanOutputDir": false,
+    "excludePrivate": true,
+    "disableSources": true,
+    "githubPages": true,
+    "categorizeByGroup": true,
+    "defaultCategory": " ",
+    "categoryOrder": ["🌟", "*"]
+}
