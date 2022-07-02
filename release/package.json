@@ -1,0 +1,95 @@
+{
+    "name": "path-nice",
+    "version": "x-release-please-version",
+    "license": "MIT",
+    "description": "How path and fs should be designed.",
+    "homepage": "https://github.com/FuuuOverclocking/path-nice",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/FuuuOverclocking/path-nice"
+    },
+    "author": {
+        "email": "g.for.xyz@gmail.com",
+        "name": "Fuu"
+    },
+    "engines": {
+        "node": ">=12"
+    },
+    "main": "./cjs/index.cjs.js",
+    "module": "./esm/index.esm.js",
+    "types": "./esm/index.esm.d.ts",
+    "exports": {
+        ".": {
+            "types": "./esm/index.esm.d.ts",
+            "import": "./esm/index.esm.js",
+            "require": "./cjs/index.cjs.js"
+        },
+        "./posix": {
+            "types": "./esm/posix.esm.d.ts",
+            "import": "./esm/posix.esm.js",
+            "require": "./cjs/posix.cjs.js"
+        },
+        "./win32": {
+            "types": "./esm/win32.esm.d.ts",
+            "import": "./esm/win32.esm.js",
+            "require": "./cjs/win32.cjs.js"
+        }
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.cjs.json",
+        "watch": "tsc -w -p tsconfig.cjs.json",
+        "test": "jest",
+        "docs": "typedoc --options typedoc.json",
+        "cz": "cz"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^9.0.13",
+        "@types/jest": "^28.1.4",
+        "@types/node": "^12.12.6",
+        "commitizen": "^4.2.4",
+        "concurrently": "^7.2.2",
+        "cz-conventional-changelog": "3.3.0",
+        "fs-extra": "^10.1.0",
+        "jest": "^28.1.2",
+        "memfs": "^3.4.6",
+        "prettier": "^2.7.1",
+        "ts-jest": "^28.0.5",
+        "typedoc": "^0.22.18",
+        "typescript": "^4.7.4"
+    },
+    "files": [
+        "dist/",
+        "posix/",
+        "win32/"
+    ],
+    "sideEffects": false,
+    "keywords": [
+        "path",
+        "fs",
+        "file",
+        "file system",
+        "copy",
+        "directory",
+        "extra",
+        "mkdirp",
+        "mkdir",
+        "mkdirs",
+        "recursive",
+        "json",
+        "read",
+        "write",
+        "delete",
+        "remove",
+        "touch",
+        "create",
+        "text",
+        "output",
+        "move",
+        "promise"
+    ],
+    "config": {
+        "commitizen": {
+            "path": "./node_modules/cz-conventional-changelog"
+        }
+    }
+}
