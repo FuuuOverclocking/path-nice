@@ -32,7 +32,5 @@ jobs:
           release-type: node
           package-name: path-nice
           default-branch: main
-          extra-files:
-            - type: json
-              path: release/package.json
-              jsonpath: $.version
+          extra-files: |
+            release/package.json

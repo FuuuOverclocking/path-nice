@@ -20,10 +20,7 @@ async function genDocs() {
 
     await exec('yarn docs');
 
-    await Promise.all([
-        fixPath('docs/index.html'),
-        fixPath('docs/index-cn.html'),
-    ]);
+    await Promise.all([fixPath('docs/index.html'), fixPath('docs/index-cn.html')]);
 
     async function fixPath(filepath) {
         let str = await fs.readFile(filepath, 'utf-8');
@@ -54,7 +51,7 @@ async function genRelease() {
         path('release/win32/package.json').outputJson(genPackageJson('win32')),
         path('package.json')
             .copyToDir('./release')
-            .then(() => path('./release/package.json').updateJson(setExports)),
+            .then(() => path('./release/package.json').updateJson(updatePkgJson)),
         path('README.md').copyToDir('release'),
         path('LICENSE').copyToDir('release'),
     ]);
@@ -88,9 +85,14 @@ function genPackageJson(platform) {
     };
 }
 
-function setExports(json) {
+function updatePkgJson(json) {
     return {
         ...json,
+
+        // See .github/workflows/release.yml
+        // $.jobs.release-please.steps[0].with.extra-files
+        version: 'x-release-please-version',
+
         main: './cjs/index.cjs.js',
         module: './esm/index.esm.js',
         types: './esm/index.esm.d.ts',
