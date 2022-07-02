@@ -1,6 +1,6 @@
 {
     "name": "path-nice",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "license": "MIT",
     "description": "How path and fs should be designed.",
     "homepage": "https://github.com/FuuuOverclocking/path-nice",
