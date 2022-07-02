@@ -1,7 +1,7 @@
-import { copy } from './copy.js';
-import { remove } from './remove';
-import type { FileSystem, PlatformPath } from './types.js';
 import type { BigIntStats } from 'fs';
+import type { FileSystem, PlatformPath } from './types.js';
+import { copy } from './copy.js';
+import { remove } from './remove.js';
 
 // This file is a modified version of the fs-extra's move method.
 // https://github.com/jprichardson/node-fs-extra/blob/master/lib/move/move.js

@@ -1,5 +1,5 @@
-import type { FileSystem, PlatformPath } from './types.js';
 import type { BigIntStats } from 'fs';
+import type { FileSystem, PlatformPath } from './types.js';
 
 // This file is a modified version of the fs's cp method.
 // BTW, fs's cp method is a modified version of the fs-extra's copy method.

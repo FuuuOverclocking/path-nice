@@ -5,6 +5,8 @@ import { isValidBufferEncoding } from '../common/utils/is-valid-buffer-encoding.
 import { copy } from '../common/copy.js';
 import { move } from '../common/move.js';
 import { remove } from '../common/remove.js';
+import { emptyDir } from '../common/empty-dir.js';
+import { ensureDir, ensureFile } from '../common/ensure.js';
 
 const lowpath = nodepath;
 const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
@@ -46,6 +48,7 @@ export class PathNice {
      * or 'hybrid' if there are both '/' and '\\' separators.
      *
      * @example
+     * ```ts
      * $ path('/home/fuu/data.json').separator()
      * '/'
      *
@@ -63,6 +66,7 @@ export class PathNice {
      *
      * $ path('C:\\Windows\\System32').separator('/').raw
      * 'C:/Windows/System32'
+     * ```
      */
     public separator(): '/' | '\\' | 'none' | 'hybrid';
     public separator(forceSep: '/' | '\\'): PathNice;
@@ -84,6 +88,7 @@ export class PathNice {
      * Join all arguments together and normalize the resulting path.
      *
      * @example
+     * ```ts
      * $ path('../data').join('settings.json').raw
      * '../data/settings.json'      // on POSIX
      * '..\\data\\settings.json'    // on Windows
@@ -93,6 +98,7 @@ export class PathNice {
      *
      * $ path('C:\\Users').join('fuu', 'data.json').raw
      * 'C:\\Users\\fuu\\data.json'  // on Windows
+     * ```
      */
     public join(...paths: Array<string | PathNice>): PathNice {
         const _paths = paths.map((p) => (typeof p === 'string' ? p : p.raw));
@@ -103,6 +109,7 @@ export class PathNice {
      * Get (when 0 args) or set (when 1 arg) the directory name of a path.
      *
      * @example
+     * ```ts
      * $ path('/usr/local/bin').dirname().raw
      * '/usr/local'         // on POSIX
      *
@@ -112,6 +119,7 @@ export class PathNice {
      * $ path('./src/index.ts').dirname('./dist').raw
      * './dist/index.ts'    // on POSIX
      * '.\\dist\\index.ts'  // on Windows
+     * ```
      */
     public dirname(newDirname?: string | PathNice): PathNice {
         switch (typeof newDirname) {
@@ -127,41 +135,31 @@ export class PathNice {
     }
 
     /**
-     * Return the path to the parent directory, similar to the Unix command `cd ..` .
+     * Alias for `.dirname()` .
      *
-     * Same to `path(??).dirname()` and `path(??).parent` .
-     *
-     * @example
-     * $ path('/usr/local/bin').dotdot.raw
-     * '/usr/local'         // on POSIX
-     *
-     * $ path('C:\\Users\\fuu').dotdot.raw
-     * 'C:\\Users'          // on Windows
-     */
-    public get dotdot(): PathNice {
-        return this.dirname();
-    }
-
-    /**
-     * Return the path to the parent directory, similar to the Unix command `cd ..` .
-     *
-     * Same to `path(??).dirname()` and `path(??).dotdot` .
+     * Return the path to the parent directory.
      *
      * @example
+     * ```ts
      * $ path('/usr/local/bin').parent.raw
      * '/usr/local'         // on POSIX
      *
      * $ path('C:\\Users\\fuu').parent.raw
      * 'C:\\Users'          // on Windows
+     * ```
      */
     public get parent(): PathNice {
         return this.dirname();
     }
 
     /**
-     * Get (when 0 args) or set (when 1 arg) the last portion of the path.
+     * Get (when 0 args) or set (when 1 arg) the filename of the path.
+     *
+     * Exactly speaking, it first converts the path to an absolute path, and then returns
+     * its last portion. If the path is root directory, returns ''.
      *
      * @example
+     * ```ts
      * $ path('./src/index.js').filename().raw
      * 'index.js'
      *
@@ -176,13 +174,14 @@ export class PathNice {
      *
      * $ path('C:\\Users\\fuu\\bar.txt').filename('foo.md').raw
      * 'C:\\Users\\fuu\\foo.md' // on Windows
+     * ```
      */
     public filename(): string;
     public filename(newFilename: string | PathNice): PathNice;
     public filename(newFilename?: string | PathNice): string | PathNice {
         switch (typeof newFilename) {
             case 'undefined':
-                return lowpath.basename(this.raw);
+                return lowpath.basename(lowpath.resolve(this.raw));
             case 'string':
                 return this._new(lowpath.join(lowpath.dirname(this.raw), newFilename));
             case 'object':
@@ -201,6 +200,7 @@ export class PathNice {
      * is '.', then it returns an empty string.
      *
      * @example
+     * ```ts
      * $ path('./src/index.js').ext()
      * '.js'
      *
@@ -217,6 +217,7 @@ export class PathNice {
      * $ path('./README.md').ext(null).raw
      * './README'           // on POSIX
      * '.\\README'          // on Windows
+     * ```
      */
     public ext(): string;
     public ext(newExt: string | null): PathNice;
@@ -242,9 +243,11 @@ export class PathNice {
      * Add a prefix to the filename, i.e. add the prefix after dirname, before filename.
      *
      * @example
+     * ```ts
      * $ path('data/January').prefixFilename('2021-').raw
      * 'data/2021-January'  // on POSIX
      * 'data\\2021-January' // on Windows
+     * ```
      */
     public prefixFilename(prefix: string): PathNice {
         const obj = lowpath.parse(this.raw);
@@ -261,9 +264,11 @@ export class PathNice {
      * If the extension not exists, directly add to the end.
      *
      * @example
+     * ```ts
      * $ path('path-nice/tsconfig.json').postfixBeforeExt('.base').raw
      * 'path-nice/tsconfig.base.json'   // on POSIX
      * 'path-nice\\tsconfig.base.json'  // on Windows
+     * ```
      */
     public postfixBeforeExt(postfix: string): PathNice {
         const obj = lowpath.parse(this.raw);
@@ -280,6 +285,7 @@ export class PathNice {
      * Add a postfix to the end of the path.
      *
      * @example
+     * ```ts
      * $ path('user/data/').postfix('-1').raw
      * 'user/data-1'        // on POSIX
      * 'user\\data-1'       // on Windows
@@ -287,6 +293,7 @@ export class PathNice {
      * $ path('./content.txt').postfix('.json').raw
      * './content.txt.json' // on POSIX
      * '.\\content.txt.json' // on Windows
+     * ```
      */
     public postfix(postfix: string): PathNice {
         const obj = lowpath.parse(this.raw);
@@ -304,6 +311,7 @@ export class PathNice {
      * to the same location, regardless of the working directory.
      *
      * @example
+     * ```ts
      * // on POSIX
      * path('/foo/bar').isAbsolute();    // true
      * path('/baz/..').isAbsolute();     // true
@@ -317,6 +325,7 @@ export class PathNice {
      * path('bar\\baz').isAbsolute();    // false
      * path('bar/baz').isAbsolute();     // false
      * path('.').isAbsolute();           // false
+     * ```
      */
     public isAbsolute(): boolean {
         return lowpath.isAbsolute(this.raw);
@@ -329,6 +338,7 @@ export class PathNice {
      * current working directory is used.
      *
      * @example
+     * ```ts
      * $ path('./src/index.ts').toAbsolute().raw // on POSIX,
      *                                           // suppose cwd is '/path-nice'
      * '/path-nice/src/index.ts'
@@ -336,6 +346,7 @@ export class PathNice {
      * $ path('./src/index.ts').toAbsolute().raw // on Windows,
      *                                           // suppose cwd is 'D:\\path-nice'
      * 'D:\\path-nice\\src\\index.ts'
+     * ```
      */
     public toAbsolute(basePath?: string | PathNice): PathNice {
         if (this.isAbsolute()) return this;
@@ -356,6 +367,7 @@ export class PathNice {
      * This is actually the reverse transform of path.resolve.
      *
      * @example
+     * ```ts
      * // on POSIX
      * $ path('/data/orandea/impl/bbb').toRelative('/data/orandea/test/aaa').raw
      * '../../impl/bbb'
@@ -363,6 +375,7 @@ export class PathNice {
      * // on Windows
      * $ path('C:\\orandea\\impl\\bbb').toRelative('C:\\orandea\\test\\aaa').raw
      * '..\\..\\impl\\bbb'
+     * ```
      */
     public toRelative(relativeTo: string | PathNice): PathNice {
         if (typeof relativeTo === 'string') {
@@ -379,6 +392,7 @@ export class PathNice {
      * Return an object whose properties represent significant elements of the path.
      *
      * @example
+     * ```ts
      * // on POSIX
      * ┌─────────────────────┬────────────┐
      * │          dir        │    base    │
@@ -420,6 +434,7 @@ export class PathNice {
      * 'data'
      * $ result.dir('D:\\path-nice').ext('.txt').format().raw
      * 'D:\\path-nice\\data.txt'
+     * ```
      */
     public parse(): ParsedPathNice {
         return new ParsedPathNice(lowpath.parse(this.raw));
@@ -618,6 +633,56 @@ export class PathNice {
         return this.writeFile(json, writeOptions);
     }
 
+    public async outputFile(
+        data: any,
+        options?:
+            | {
+                  encoding?: string | null | undefined;
+                  mode?: string | number | undefined;
+                  flag?: string | number | undefined;
+              }
+            | string
+            | null,
+    ): Promise<void> {
+        await this.parent.ensureDir();
+        await nodefs.promises.writeFile(this.raw, data, options);
+    }
+
+    public async outputJson(
+        data: any,
+        options?:
+            | {
+                  EOL?: '\n' | '\r\n';
+                  replacer?:
+                      | (number | string)[]
+                      | ((this: any, key: string, value: any) => any)
+                      | null
+                      | undefined;
+                  spaces?: number | string | undefined;
+                  encoding?: string | null | undefined;
+                  mode?: string | number | undefined;
+                  flag?: string | number | undefined;
+              }
+            | string
+            | null,
+    ): Promise<void> {
+        await this.parent.ensureDir();
+
+        options = typeof options === 'string' ? { encoding: options } : options || {};
+
+        const writeOptions = {} as any;
+        writeOptions.encoding = options.encoding || 'utf-8';
+        writeOptions.mode = options.mode;
+        writeOptions.flag = options.flag;
+
+        let json = JSON.stringify(data, options.replacer as any, options.spaces || 4);
+        if (options.EOL && options.EOL !== '\n') {
+            json = json.replace(/\n/g, options.EOL);
+        }
+
+        await this.writeFile(json, writeOptions);
+    }
+
     public async updateString(fn: (original: string) => string): Promise<void>;
     public async updateString(
         encoding: BufferEncoding,
@@ -627,23 +692,27 @@ export class PathNice {
         if (typeof arg0 === 'function') {
             const str = await this.readString();
             await this.writeFile(arg0(str));
+            return;
         }
         const str = await this.readString(arg0);
         await this.writeFile(arg1(str), { encoding: arg0 });
     }
 
-    public async updateJson(fn: (original: any) => any): Promise<void>;
+    public async updateJson(fn: (original: any) => {} | null | undefined): Promise<void>;
     public async updateJson(
         encoding: BufferEncoding,
-        fn: (original: any) => any,
+        fn: (original: any) => {} | null | undefined,
     ): Promise<void>;
     public async updateJson(arg0: any, arg1?: any): Promise<void> {
         if (typeof arg0 === 'function') {
             const obj = await this.readJson();
-            await this.writeJson(arg0(obj));
+            const result = arg0(obj);
+            await this.writeJson(result === void 0 ? obj : result);
+            return;
         }
         const obj = await this.readString(arg0);
-        await this.writeFile(arg1(obj), { encoding: arg0 });
+        const result = arg1(obj);
+        await this.writeFile(result === void 0 ? obj : result, { encoding: arg0 });
     }
 
     /**
@@ -714,7 +783,7 @@ export class PathNice {
         return nodefs.promises.open(flags, mode);
     }
 
-    public copyTo(
+    public copyAs(
         dest: string | PathNice,
         options?: {
             force?: boolean | null | undefined;
@@ -735,7 +804,30 @@ export class PathNice {
         );
     }
 
-    public moveTo(
+    public copyToDir(
+        destDir: string | PathNice,
+        options?: {
+            force?: boolean | null | undefined;
+            dereference?: boolean | null | undefined;
+            errorOnExist?: boolean | null | undefined;
+            filter?: ((src: string, dest: string) => boolean) | null | undefined;
+            preserveTimestamps?: boolean | null | undefined;
+            recursive: boolean;
+            verbatimSymlinks?: boolean | null | undefined;
+        } | null,
+    ): Promise<void> {
+        const destDirStr = typeof destDir === 'string' ? destDir : destDir.raw;
+
+        return copy(
+            lowpath as any,
+            nodefs,
+            this.raw,
+            lowpath.join(destDirStr, this.filename()),
+            options,
+        );
+    }
+
+    public moveAs(
         dest: string | PathNice,
         options?: {
             overwrite?: boolean | null | undefined;
@@ -749,6 +841,24 @@ export class PathNice {
             options,
         );
     }
+
+    public moveToDir(
+        destDir: string | PathNice,
+        options?: {
+            overwrite?: boolean | null | undefined;
+        } | null,
+    ): Promise<void> {
+        const destDirStr = typeof destDir === 'string' ? destDir : destDir.raw;
+
+        return move(
+            lowpath as any,
+            nodefs,
+            this.raw,
+            lowpath.join(destDirStr, this.filename()),
+            options,
+        );
+    }
+
     public rename(newPath: string | PathNice): Promise<void> {
         return nodefs.promises.rename(
             this.raw,
@@ -760,48 +870,327 @@ export class PathNice {
         return remove(nodefs, this.raw);
     }
 
-    public async emptyDir(): Promise<void> {
-        const files = await nodefs.promises.readdir(this.raw);
-        await Promise.all(
-            files.map((f) => {
-                const target = lowpath.join(this.raw, f);
-                return remove(nodefs, target);
-            }),
-        );
+    public emptyDir(): Promise<void> {
+        return emptyDir(lowpath as any, nodefs, this.raw);
     }
 
-    public async ensureDir(options?: { mode?: number | string | undefined }): Promise<void> {
-        await nodefs.promises.mkdir(this.raw, { recursive: true, ...options });
+    public ensureDir(options?: { mode?: number | string | undefined }): Promise<void> {
+        return ensureDir(nodefs, this.raw, options);
     }
-    
-    public ensureFile(): Promise<void> {}
+
+    public ensureFile(): Promise<void> {
+        return ensureFile(lowpath as any, nodefs, this.raw);
+    }
 
     /**
      * It is recommended to use `isFile()`, `isDir()`, ...
      */
-    public exists(): Promise<boolean> {}
+    public exists(): Promise<boolean> {
+        return nodefs.promises.access(this.raw).then(
+            () => true,
+            () => false,
+        );
+    }
+
+    /**
+     * Check if the path is an empty directory.
+     *
+     * If the path is not a directory, an error will be thrown.
+     */
     public async isEmptyDir(): Promise<boolean> {
         const files = await nodefs.promises.readdir(this.raw);
         return files.length === 0;
     }
-    public isDir(): void {}
-    public isFile(): void {}
-    public isSymbolicLink(): void {}
 
-    public readdir(): void {}
-    public ls(
+    /**
+     * Check if the path is a directory.
+     *
+     * @param followlink when true, if the path is a link, follows it. Default: false
+     */
+    public async isDir(followlink?: boolean): Promise<boolean> {
+        const stats = followlink
+            ? await nodefs.promises.stat(this.raw)
+            : await nodefs.promises.lstat(this.raw);
+        return stats.isDirectory();
+    }
+
+    /**
+     * Check if the path is a file.
+     *
+     * @param followlink when true, if the path is a link, follows it. Default: false
+     */
+    public async isFile(followlink?: boolean): Promise<boolean> {
+        const stats = followlink
+            ? await nodefs.promises.stat(this.raw)
+            : await nodefs.promises.lstat(this.raw);
+        return stats.isFile();
+    }
+
+    /**
+     * Check if the path is a symbolic link.
+     */
+    public async isSymbolicLink(): Promise<boolean> {
+        const stats = await nodefs.promises.lstat(this.raw);
+        return stats.isSymbolicLink();
+    }
+
+    /**
+     * Asynchronous readdir(3) - read a directory.
+     * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     */
+    public readdir(
+        options?:
+            | {
+                  encoding?: BufferEncoding | null | undefined;
+                  withFileTypes?: false | undefined;
+              }
+            | BufferEncoding
+            | null,
+    ): Promise<string[]>;
+
+    /**
+     * Asynchronous readdir(3) - read a directory.
+     * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     */
+    public readdir(
+        options: { encoding: 'buffer'; withFileTypes?: false | undefined } | 'buffer',
+    ): Promise<Buffer[]>;
+
+    /**
+     * Asynchronous readdir(3) - read a directory.
+     * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     */
+    public readdir(
+        options?:
+            | { encoding?: string | null | undefined; withFileTypes?: false | undefined }
+            | string
+            | null,
+    ): Promise<string[] | Buffer[]>;
+
+    /**
+     * Asynchronous readdir(3) - read a directory.
+     * @param options If called with `withFileTypes: true` the result data will be an array of Dirent.
+     */
+    public readdir(options: {
+        encoding?: string | null | undefined;
+        withFileTypes: true;
+    }): Promise<nodefs.Dirent[]>;
+
+    public readdir(options?: any): any {
+        return nodefs.promises.readdir(this.raw, options);
+    }
+
+    /**
+     * List all directories and files under the folder, return a Promise that resolves to
+     * an object `{ dirs: PathNice[]; files: PathNice[] }`
+     *
+     * - `dirs`: subdirectories, not including the current folder
+     * - `files`: files and others (e.g. device, FIFO, socket, etc). If `followLinks` is
+     * false, it also contains links.
+     *
+     * The paths contained in the returned `PathNice` object are all absolute paths, so
+     * they can be used directly for `.readFile()`, `.writeFile()`, `.copyTo()`,
+     * `.moveTo()`, etc. Use `.toRelative(dir)` to get the relative path.
+     *
+     * @param recursive whether to list file recursively. Default: false
+     * @param followLinks whether to follow links under the folder. Default: false
+     *
+     * @example
+     * ```ts
+     * const { dirs, files } = await path('./').ls();
+     * await files
+     *     .filter(f => f.ext() === '.json')
+     *     .updateJson(json => { json.timestamp = Date.now() })
+     * ```
+     */
+    public async ls(
         recursive?: boolean,
-        followlinks?: boolean,
-    ): Promise<{ dirs: PathNice[]; files: PathNice[] }> {}
+        followLinks?: boolean,
+    ): Promise<{ dirs: PathNice[]; files: PathNice[] }> {
+        const fs = nodefs.promises;
 
-    public watch(): void {}
-    public watchFile(): void {}
+        // Always try to resolve a link for the current path,
+        // regardless of whether followLinks is enabled.
+        const stats = await fs.stat(this.raw);
+        if (!stats.isDirectory()) {
+            throw new Error('[path-nice] .ls(): the path is not a directory.');
+        }
 
-    public stat(): void {}
-    public chmod(): void {}
-    public chown(): void {}
+        const dirs = [] as PathNice[];
+        const files = [] as PathNice[];
 
-    // TODO: sync ver
+        const readSingleLayer = async (dir: string) => {
+            const entries = await fs.readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+                const abs = lowpath.join(dir, entry.name);
+                const nice = this._new(abs);
+
+                let isDir = false;
+                if (followLinks && entry.isSymbolicLink()) {
+                    const real = await fs.realpath(abs);
+                    const stats = await fs.lstat(real);
+                    if (stats.isDirectory()) isDir = true;
+                } else if (entry.isDirectory()) {
+                    isDir = true;
+                }
+
+                if (isDir) {
+                    dirs.push(nice);
+                    await readSingleLayer(abs);
+                } else {
+                    files.push(nice);
+                }
+            }
+        };
+
+        await readSingleLayer(lowpath.normalize(this.toAbsolute().raw));
+
+        return { dirs, files };
+    }
+
+    /**
+     * Watch for changes on `filename`. The callback `listener` will be called each time the file is accessed.
+     */
+    public watchFile(
+        options:
+            | { persistent?: boolean | undefined; interval?: number | undefined }
+            | undefined,
+        listener: (curr: nodefs.Stats, prev: nodefs.Stats) => void,
+    ): void;
+    /**
+     * Watch for changes on `filename`. The callback `listener` will be called each time the file is accessed.
+     */
+    public watchFile(listener: (curr: nodefs.Stats, prev: nodefs.Stats) => void): void;
+    public watchFile(arg0: any, arg1?: any): void {
+        return nodefs.watchFile(this.raw, arg0, arg1);
+    }
+
+    /**
+     * Stop watching for changes on `filename`.
+     */
+    public unwatchFile(
+        listener?: (curr: nodefs.Stats, prev: nodefs.Stats) => void,
+    ): void {
+        return nodefs.unwatchFile(this.raw, listener);
+    }
+
+    /**
+     * Watch for changes on `filename`, where `filename` is either a file or a directory, returning an `FSWatcher`.
+     * @param options Either the encoding for the filename provided to the listener, or an object optionally specifying encoding, persistent, and recursive options.
+     * If `encoding` is not supplied, the default of `'utf8'` is used.
+     * If `persistent` is not supplied, the default of `true` is used.
+     * If `recursive` is not supplied, the default of `false` is used.
+     */
+    public watch(
+        options:
+            | {
+                  encoding?: BufferEncoding | null | undefined;
+                  persistent?: boolean | undefined;
+                  recursive?: boolean | undefined;
+              }
+            | BufferEncoding
+            | undefined
+            | null,
+        listener?: (event: string, filename: string) => void,
+    ): nodefs.FSWatcher;
+    /**
+     * Watch for changes on `filename`, where `filename` is either a file or a directory, returning an `FSWatcher`.
+     * @param options Either the encoding for the filename provided to the listener, or an object optionally specifying encoding, persistent, and recursive options.
+     * If `encoding` is not supplied, the default of `'utf8'` is used.
+     * If `persistent` is not supplied, the default of `true` is used.
+     * If `recursive` is not supplied, the default of `false` is used.
+     */
+    public watch(
+        options:
+            | {
+                  encoding: 'buffer';
+                  persistent?: boolean | undefined;
+                  recursive?: boolean | undefined;
+              }
+            | 'buffer',
+        listener?: (event: string, filename: Buffer) => void,
+    ): nodefs.FSWatcher;
+    /**
+     * Watch for changes on `filename`, where `filename` is either a file or a directory, returning an `FSWatcher`.
+     * @param options Either the encoding for the filename provided to the listener, or an object optionally specifying encoding, persistent, and recursive options.
+     * If `encoding` is not supplied, the default of `'utf8'` is used.
+     * If `persistent` is not supplied, the default of `true` is used.
+     * If `recursive` is not supplied, the default of `false` is used.
+     */
+    public watch(
+        options:
+            | {
+                  encoding?: string | null | undefined;
+                  persistent?: boolean | undefined;
+                  recursive?: boolean | undefined;
+              }
+            | string
+            | null,
+        listener?: (event: string, filename: string | Buffer) => void,
+    ): nodefs.FSWatcher;
+    /**
+     * Watch for changes on `filename`, where `filename` is either a file or a directory, returning an `FSWatcher`.
+     */
+    public watch(listener?: (event: string, filename: string) => any): nodefs.FSWatcher;
+    public watch(arg0?: any, arg1?: any): nodefs.FSWatcher {
+        return nodefs.watch(this.raw, arg0, arg1);
+    }
+
+    /**
+     * Asynchronous lstat(2) - Get file status. Does not dereference symbolic links.
+     */
+    public lstat(
+        opts?: nodefs.StatOptions & { bigint?: false | undefined },
+    ): Promise<nodefs.Stats>;
+    public lstat(
+        opts: nodefs.StatOptions & { bigint: true },
+    ): Promise<nodefs.BigIntStats>;
+    public lstat(opts?: nodefs.StatOptions): Promise<nodefs.Stats | nodefs.BigIntStats>;
+    public lstat(opts?: nodefs.StatOptions): Promise<nodefs.Stats | nodefs.BigIntStats> {
+        return nodefs.promises.lstat(this.raw, opts);
+    }
+
+    /**
+     * Asynchronous stat(2) - Get file status.
+     */
+    public stat(
+        opts?: nodefs.StatOptions & { bigint?: false | undefined },
+    ): Promise<nodefs.Stats>;
+    public stat(opts: nodefs.StatOptions & { bigint: true }): Promise<nodefs.BigIntStats>;
+    public stat(opts?: nodefs.StatOptions): Promise<nodefs.Stats | nodefs.BigIntStats>;
+    public stat(opts?: nodefs.StatOptions): Promise<nodefs.Stats | nodefs.BigIntStats> {
+        return nodefs.promises.stat(this.raw, opts);
+    }
+
+    /**
+     * Asynchronous chmod(2) - Change permissions of a file.
+     * @param mode A file mode. If a string is passed, it is parsed as an octal integer.
+     */
+    public chmod(mode: string | number): Promise<void> {
+        return nodefs.promises.chmod(this.raw, mode);
+    }
+
+    /**
+     * Asynchronous lchmod(2) - Change permissions of a file. Does not dereference symbolic links.
+     * @param mode A file mode. If a string is passed, it is parsed as an octal integer.
+     */
+    public lchmod(mode: string | number): Promise<void> {
+        return nodefs.promises.lchmod(this.raw, mode);
+    }
+
+    /**
+     * Asynchronous lchown(2) - Change ownership of a file. Does not dereference symbolic links.
+     */
+    public lchown(uid: number, gid: number): Promise<void> {
+        return nodefs.promises.lchown(this.raw, uid, gid);
+    }
+
+    /**
+     * Asynchronous chown(2) - Change ownership of a file.
+     */
+    public chown(uid: number, gid: number): Promise<void> {
+        return nodefs.promises.chown(this.raw, uid, gid);
+    }
 }
 
 export class ParsedPathNice {

@@ -1,13 +1,13 @@
 import type nodefs from 'fs';
 import type { IFs as memfs } from 'memfs';
 import type fsExtra from 'fs-extra';
-import { PathNice } from '../auto/path-nice.js';
-import { PathNicePosix } from '../posix/path-nice-posix.js';
-import { PathNiceWin32 } from '../win32/path-nice-win32.js';
+import type { PathNice } from '../auto/path-nice.js';
+import type { PathNicePosix } from '../posix/path-nice-posix.js';
+import type { PathNiceWin32 } from '../win32/path-nice-win32.js';
 
 export type FileSystem = typeof nodefs | typeof fsExtra | memfs;
 
-export interface Path extends _PlatformPath {
+export interface Path extends PlatformPath {
     /**
      * Get a new instance of PathNice.
      *
@@ -15,9 +15,23 @@ export interface Path extends _PlatformPath {
      * together; if zero, the path will be '.'
      */
     (...paths: Array<string | PathNice>): PathNice;
+
+    /**
+     * Posix specific pathing.
+     */
+    readonly posix: PathPosix;
+    /**
+     * Windows specific pathing.
+     */
+    readonly win32: PathWin32;
+
+    // TODO: copy doc from classes
+    readonly PathNice: typeof PathNice;
+    readonly PathNicePosix: typeof PathNicePosix;
+    readonly PathNiceWin32: typeof PathNiceWin32;
 }
 
-export interface PathPosix extends _PlatformPath {
+export interface PathPosix extends PlatformPath {
     /**
      * Get a new instance of PathNicePosix.
      *
@@ -28,9 +42,23 @@ export interface PathPosix extends _PlatformPath {
     <P extends string>(str: P, fs?: FileSystem): PathNicePosix<P>;
 
     bindFS(fs: FileSystem): PathPosix;
+
+    /**
+     * Posix specific pathing.
+     */
+    readonly posix: PathPosix;
+    /**
+     * Windows specific pathing.
+     */
+    readonly win32: PathWin32;
+
+    // TODO: copy doc from classes
+    readonly PathNice: typeof PathNice;
+    readonly PathNicePosix: typeof PathNicePosix;
+    readonly PathNiceWin32: typeof PathNiceWin32;
 }
 
-export interface PathWin32 extends _PlatformPath {
+export interface PathWin32 extends PlatformPath {
     /**
      * Get a new instance of PathNiceWin32.
      *
@@ -41,9 +69,7 @@ export interface PathWin32 extends _PlatformPath {
     <P extends string>(str: P, fs?: FileSystem): PathNiceWin32<P>;
 
     bindFS(fs: FileSystem): PathWin32;
-}
 
-interface _PlatformPath extends PlatformPath {
     /**
      * Posix specific pathing.
      */

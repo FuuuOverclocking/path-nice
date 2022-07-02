@@ -1,4 +1,4 @@
-import type { FileSystem, PlatformPath } from './types.js';
+import type { FileSystem } from './types.js';
 
 export async function remove(
     fs: FileSystem,

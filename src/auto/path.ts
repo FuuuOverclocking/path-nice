@@ -1,12 +1,12 @@
 import * as nodepath from 'path';
 import type { Path } from '../common/types.js';
-import { PathNice } from './path-nice.js';
+import { PathNice, ParsedPathNice } from './path-nice.js';
 import { pathPosix, PathNicePosix } from '../posix/path.js';
 import { pathWin32, PathNiceWin32 } from '../win32/path.js';
 
 const lowpath = nodepath;
 
-export { PathNice };
+export { PathNice, ParsedPathNice };
 
 export const path = ((...paths: Array<string | PathNice>) => {
     if (paths.length === 1) {
