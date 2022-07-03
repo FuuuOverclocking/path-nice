@@ -4,7 +4,6 @@
     "includeVersion": true,
     "cleanOutputDir": false,
     "excludePrivate": true,
-    "disableSources": true,
     "githubPages": true,
     "categorizeByGroup": true,
     "defaultCategory": " ",
