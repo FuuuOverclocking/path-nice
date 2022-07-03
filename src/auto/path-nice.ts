@@ -551,7 +551,7 @@ export class PathNice {
     /**
      * Asynchronously reads a JSON file and then parses it into an object.
      */
-    public async readJson(
+    public async readJSON(
         options?: {
             flag?: string | number | undefined;
         } | null,
@@ -600,7 +600,7 @@ export class PathNice {
      * - options.mode: use 0o666 by default.
      * - options.flag: use 'w' by default.
      */
-    public writeJson(
+    public writeJSON(
         data: any,
         options?:
             | {
@@ -648,7 +648,7 @@ export class PathNice {
         await nodefs.promises.writeFile(this.raw, data, options);
     }
 
-    public async outputJson(
+    public async outputJSON(
         data: any,
         options?:
             | {
@@ -698,16 +698,16 @@ export class PathNice {
         await this.writeFile(arg1(str), { encoding: arg0 });
     }
 
-    public async updateJson(fn: (original: any) => {} | null | undefined): Promise<void>;
-    public async updateJson(
+    public async updateJSON(fn: (original: any) => {} | null | undefined): Promise<void>;
+    public async updateJSON(
         encoding: BufferEncoding,
         fn: (original: any) => {} | null | undefined,
     ): Promise<void>;
-    public async updateJson(arg0: any, arg1?: any): Promise<void> {
+    public async updateJSON(arg0: any, arg1?: any): Promise<void> {
         if (typeof arg0 === 'function') {
-            const obj = await this.readJson();
+            const obj = await this.readJSON();
             const result = arg0(obj);
-            await this.writeJson(result === void 0 ? obj : result);
+            await this.writeJSON(result === void 0 ? obj : result);
             return;
         }
         const obj = await this.readString(arg0);
@@ -1000,7 +1000,7 @@ export class PathNice {
      * const { dirs, files } = await path('./').ls();
      * await files
      *     .filter(f => f.ext() === '.json')
-     *     .updateJson(json => { json.timestamp = Date.now() })
+     *     .updateJSON(json => { json.timestamp = Date.now() })
      * ```
      */
     public async ls(

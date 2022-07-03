@@ -6,7 +6,7 @@ English | [简体中文](README-cn.md)
 
 If sometimes you do not feel nice about `path` or `fs` of Node.js, then just
 
-![Add nice here](docs/images/add-nice-here.png)
+![Add nice here](https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/add-nice-here.png)
 
 All existing code still works, while the `path` evolves.
 
@@ -35,7 +35,7 @@ await filename.writeFile('export default 42;')
 
 ### Informative comments, no need to go through docs, examples are all there
 
-![](docs/images/jsdoc.png)
+![](https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/jsdoc.png)
 
 ### Support for specifying other fs, e.g. memory file system [memfs](https://github.com/streamich/memfs)
 
@@ -55,7 +55,7 @@ await mpath('/index.ts')
 
 (POSIX only)
 
-![](docs/images/meta-programming.png)
+![](https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/meta-programming.png)
 
 ## Installation
 
@@ -144,9 +144,9 @@ d.dir('/home/fuu').ext('.json').format()
 .readString
 .readBuffer
 .writeFile
-.writeJson
+.writeJSON
 .updateString
-.updateJson
+.updateJSON
 .appendFile
 .createReadStream
 .createWriteStream
@@ -255,7 +255,7 @@ async function build() {
     // ...
 
     // cjs/esm fixup
-    await dirDist.join('cjs/package.json').writeJson({ type: 'commonjs' });
-    await dirDist.join('esm/package.json').writeJson({ type: 'module' });
+    await dirDist.join('cjs/package.json').writeJSON({ type: 'commonjs' });
+    await dirDist.join('esm/package.json').writeJSON({ type: 'module' });
 }
 ```
