@@ -1,2 +1,2 @@
-import { pathWin32 } from './win32/path.js';
+import { pathWin32 } from './path.js';
 export = pathWin32;

@@ -1,4 +1,4 @@
-import { path } from './auto/path.js';
+import { path } from './path.js';
 export = path;
 
 // As {package.json}.types = "./dist/esm/index.esm.d.ts",

@@ -1,8 +1,6 @@
 import * as nodepath from 'path';
 import type { FileSystem, PathPosix } from '../common/types.js';
 import { PathNicePosix } from './path-nice-posix.js';
-import { PathNice } from '../auto/path.js';
-import { pathWin32, PathNiceWin32 } from '../win32/path.js';
 
 const lowpath = nodepath;
 
@@ -23,9 +21,3 @@ for (const [k, v] of Object.entries(lowpath)) {
         (pathPosix as any)[k] = v;
     }
 }
-
-(pathPosix as any).posix = pathPosix;
-(pathPosix as any).win32 = pathWin32;
-(pathPosix as any).PathNice = PathNice;
-(pathPosix as any).PathNicePosix = PathNicePosix;
-(pathPosix as any).PathNiceWin32 = PathNiceWin32;
