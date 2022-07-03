@@ -1,19 +1,19 @@
 const path = require('../release/cjs/index.cjs.js');
-const { shell } = require('./utils');
+const { sh } = require('./utils');
 
 main();
 async function main() {
     await path('README.md').rename('README-en.md');
     await path('README-cn.md').rename('README.md');
 
-    await shell('typedoc --options typedoc.json');
+    await sh('typedoc --options typedoc.json');
 
     await path('docs/index.html').rename('docs/index-cn.html');
 
     await path('README.md').rename('README-cn.md');
     await path('README-en.md').rename('README.md');
 
-    await shell('typedoc --options typedoc.json');
+    await sh('typedoc --options typedoc.json');
 
     await Promise.all([fixPath('docs/index.html'), fixPath('docs/index-cn.html')]);
 

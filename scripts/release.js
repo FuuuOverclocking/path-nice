@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const chalk = require('chalk');
-const { x, shell } = require('./utils');
+const { x, sh } = require('./utils');
 
 main();
 async function main() {
@@ -18,14 +18,14 @@ async function main() {
         return;
     }
 
-    await shell('git rebase -i main');
-    await shell('git checkout main');
-    await shell('git merge dev');
+    await sh('git rebase -i main');
+    await sh('git checkout main');
+    await sh('git merge dev');
 
     await fs.remove('./build');
-    await shell('tsc -p tsconfig.cjs.json');
-    await shell('tsc -p tsconfig.esm.json');
-    await shell('jest');
+    await sh('tsc -p tsconfig.cjs.json');
+    await sh('tsc -p tsconfig.esm.json');
+    await sh('jest');
 
     const path = require('../build/cjs/index.cjs.js');
 
@@ -33,14 +33,14 @@ async function main() {
         pkg.version = version;
     });
     await genRelease();
-    await shell('yarn docs');
-    await shell('conventional-changelog -p angular -i CHANGELOG.md -s');
+    await sh('yarn docs');
+    await sh('conventional-changelog -p angular -i CHANGELOG.md -s');
 
-    await shell('git add -A');
-    await shell(`git commit -m "chore: release ${version}"`);
-    await shell('git push');
-    await shell(`git tag v${version}`);
-    await shell(`git push origin v${version}`);
+    await sh('git add -A');
+    await sh(`git commit -m "chore: release ${version}"`);
+    await sh('git push');
+    await sh(`git tag v${version}`);
+    await sh(`git push origin v${version}`);
 
     console.log(chalk.red(`Critical operation:`));
     console.log(chalk.red(`  $ npm publish --dry-run ./release`));
