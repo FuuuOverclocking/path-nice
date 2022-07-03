@@ -39,6 +39,8 @@ export declare class PathNice {
      * $ path('C:\\Windows\\System32').separator('/').raw
      * 'C:/Windows/System32'
      * ```
+     *
+     * @category Path related
      */
     separator(): '/' | '\\' | 'none' | 'hybrid';
     separator(forceSep: '/' | '\\'): PathNice;
@@ -57,6 +59,8 @@ export declare class PathNice {
      * $ path('C:\\Users').join('fuu', 'data.json').raw
      * 'C:\\Users\\fuu\\data.json'  // on Windows
      * ```
+     *
+     * @category Path related
      */
     join(...paths: Array<string | PathNice>): PathNice;
     /**
@@ -74,6 +78,8 @@ export declare class PathNice {
      * './dist/index.ts'    // on POSIX
      * '.\\dist\\index.ts'  // on Windows
      * ```
+     *
+     * @category Path related
      */
     dirname(newDirname?: string | PathNice): PathNice;
     /**
@@ -89,6 +95,8 @@ export declare class PathNice {
      * $ path('C:\\Users\\fuu').parent.raw
      * 'C:\\Users'          // on Windows
      * ```
+     *
+     * @category Path related
      */
     get parent(): PathNice;
     /**
@@ -114,6 +122,8 @@ export declare class PathNice {
      * $ path('C:\\Users\\fuu\\bar.txt').filename('foo.md').raw
      * 'C:\\Users\\fuu\\foo.md' // on Windows
      * ```
+     *
+     * @category Path related
      */
     filename(): string;
     filename(newFilename: string | PathNice): PathNice;
@@ -144,6 +154,8 @@ export declare class PathNice {
      * './README'           // on POSIX
      * '.\\README'          // on Windows
      * ```
+     *
+     * @category Path related
      */
     ext(): string;
     ext(newExt: string | null): PathNice;
@@ -156,6 +168,8 @@ export declare class PathNice {
      * 'data/2021-January'  // on POSIX
      * 'data\\2021-January' // on Windows
      * ```
+     *
+     * @category Path related
      */
     prefixFilename(prefix: string): PathNice;
     /**
@@ -168,6 +182,8 @@ export declare class PathNice {
      * 'path-nice/tsconfig.base.json'   // on POSIX
      * 'path-nice\\tsconfig.base.json'  // on Windows
      * ```
+     *
+     * @category Path related
      */
     postfixBeforeExt(postfix: string): PathNice;
     /**
@@ -183,6 +199,8 @@ export declare class PathNice {
      * './content.txt.json' // on POSIX
      * '.\\content.txt.json' // on Windows
      * ```
+     *
+     * @category Path related
      */
     postfix(postfix: string): PathNice;
     /**
@@ -205,6 +223,8 @@ export declare class PathNice {
      * path('bar/baz').isAbsolute();     // false
      * path('.').isAbsolute();           // false
      * ```
+     *
+     * @category Path related
      */
     isAbsolute(): boolean;
     /**
@@ -223,6 +243,8 @@ export declare class PathNice {
      *                                           // suppose cwd is 'D:\\path-nice'
      * 'D:\\path-nice\\src\\index.ts'
      * ```
+     *
+     * @category Path related
      */
     toAbsolute(basePath?: string | PathNice): PathNice;
     /**
@@ -240,8 +262,15 @@ export declare class PathNice {
      * $ path('C:\\orandea\\impl\\bbb').toRelative('C:\\orandea\\test\\aaa').raw
      * '..\\..\\impl\\bbb'
      * ```
+     *
+     * @category Path related
      */
     toRelative(relativeTo: string | PathNice): PathNice;
+    /**
+     * Asynchronous realpath(3) - return the canonicalized absolute pathname.
+     *
+     * @category Path related
+     */
     realpath(): Promise<PathNice>;
     /**
      * Return an object whose properties represent significant elements of the path.
@@ -290,6 +319,8 @@ export declare class PathNice {
      * $ result.dir('D:\\path-nice').ext('.txt').format().raw
      * 'D:\\path-nice\\data.txt'
      * ```
+     *
+     * @category Path related
      */
     parse(): ParsedPathNice;
     /**
@@ -298,6 +329,8 @@ export declare class PathNice {
      * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
      *
      * Asynchronously reads the entire contents of a file.
+     *
+     * @category Read and write
      */
     readFile(options?: {
         encoding?: null | undefined;
@@ -309,6 +342,8 @@ export declare class PathNice {
      * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
      *
      * Asynchronously reads the entire contents of a file.
+     *
+     * @category Read and write
      */
     readFile(options: {
         encoding: BufferEncoding;
@@ -320,6 +355,8 @@ export declare class PathNice {
      * Same as `fs.promises.readFile()`, except the path no longer needs to be specified.
      *
      * Asynchronously reads the entire contents of a file.
+     *
+     * @category Read and write
      */
     readFile(options?: {
         encoding?: string | null | undefined;
@@ -330,6 +367,8 @@ export declare class PathNice {
      *
      * Asynchronously reads the entire contents of a file. If an invalid buffer encoding
      * is specified, an error will be thrown.
+     *
+     * @category Read and write
      */
     readString(options?: {
         encoding?: BufferEncoding | null | undefined;
@@ -339,12 +378,16 @@ export declare class PathNice {
      * Similar to `.readFile()`, but guaranteed to return a Buffer.
      *
      * Asynchronously reads the entire contents of a file.
+     *
+     * @category Read and write
      */
     readBuffer(options?: {
         flag?: string | number | undefined;
     } | null): Promise<Buffer>;
     /**
      * Asynchronously reads a JSON file and then parses it into an object.
+     *
+     * @category Read and write
      */
     readJSON(options?: {
         flag?: string | number | undefined;
@@ -364,6 +407,8 @@ export declare class PathNice {
      * If `mode` is not supplied, the default of `0o666` is used.
      * If `mode` is a string, it is parsed as an octal integer.
      * If `flag` is not supplied, the default of `'w'` is used.
+     *
+     * @category Read and write
      */
     writeFile(data: any, options?: {
         encoding?: string | null | undefined;
@@ -380,6 +425,8 @@ export declare class PathNice {
      * - options.encoding: use UTF-8 by default.
      * - options.mode: use 0o666 by default.
      * - options.flag: use 'w' by default.
+     *
+     * @category Read and write
      */
     writeJSON(data: any, options?: {
         EOL?: '\n' | '\r\n';
@@ -389,11 +436,23 @@ export declare class PathNice {
         mode?: string | number | undefined;
         flag?: string | number | undefined;
     } | string | null): Promise<void>;
+    /**
+     * Similar to .writeFile(), except that if the parent directory does not exist, it
+     * will be created automatically.
+     *
+     * @category Read and write
+     */
     outputFile(data: any, options?: {
         encoding?: string | null | undefined;
         mode?: string | number | undefined;
         flag?: string | number | undefined;
     } | string | null): Promise<void>;
+    /**
+     * Similar to .writeJSON(), except that if the parent directory does not exist, it
+     * will be created automatically.
+     *
+     * @category Read and write
+     */
     outputJSON(data: any, options?: {
         EOL?: '\n' | '\r\n';
         replacer?: (number | string)[] | ((this: any, key: string, value: any) => any) | null | undefined;
@@ -402,10 +461,44 @@ export declare class PathNice {
         mode?: string | number | undefined;
         flag?: string | number | undefined;
     } | string | null): Promise<void>;
-    updateString(fn: (original: string) => string): Promise<void>;
-    updateString(encoding: BufferEncoding, fn: (original: string) => string): Promise<void>;
-    updateJSON(fn: (original: any) => {} | null | undefined): Promise<void>;
-    updateJSON(encoding: BufferEncoding, fn: (original: any) => {} | null | undefined): Promise<void>;
+    /**
+     * Update the text of the file.
+     *
+     * @param fn accepts a string that is the content of the file, should return
+     * a string or a Promise<string> as the data to overwrite the file
+     *
+     * @category Read and write
+     */
+    updateString(fn: (original: string) => string | Promise<string>): Promise<void>;
+    /**
+     * Update the text of the file.
+     *
+     * @param encoding encoding that is used when reading and writing files
+     * @param fn accepts a string that is the content of the file, should return
+     * a string or a Promise<string> as the data to overwrite the file
+     *
+     * @category Read and write
+     */
+    updateString(encoding: BufferEncoding, fn: (original: string) => string | Promise<string>): Promise<void>;
+    /**
+     * Update the json object of the file.
+     *
+     * @param fn accepts a object paresd from the file, can return a new object or
+     * undefined (in that case, original object is used) to overwrite the file
+     *
+     * @category Read and write
+     */
+    updateJSON(fn: (original: any) => {} | null | undefined | Promise<{} | null | undefined>): Promise<void>;
+    /**
+     * Update the json object of the file.
+     *
+     * @param encoding encoding that is used when reading and writing files
+     * @param fn accepts a object paresd from the file, can return a new object or
+     * undefined (in that case, original object is used) to overwrite the file
+     *
+     * @category Read and write
+     */
+    updateJSON(encoding: BufferEncoding, fn: (original: any) => {} | null | undefined | Promise<{} | null | undefined>): Promise<void>;
     /**
      * Same as `fs.promises.appendFile()`, except the path no longer needs to be specified.
      *
@@ -417,12 +510,19 @@ export declare class PathNice {
      * If `mode` is not supplied, the default of `0o666` is used.
      * If `mode` is a string, it is parsed as an octal integer.
      * If `flag` is not supplied, the default of `'a'` is used.
+     *
+     * @category Read and write
      */
     appendFile(data: any, options?: {
         encoding?: string | null | undefined;
         mode?: string | number | undefined;
         flag?: string | number | undefined;
     } | string | null): Promise<void>;
+    /**
+     * Returns a new `ReadStream` object.
+     *
+     * @category Read and write
+     */
     createReadStream(options?: string | {
         flags?: string | undefined;
         encoding?: string | undefined;
@@ -437,6 +537,11 @@ export declare class PathNice {
         end?: number | undefined;
         highWaterMark?: number | undefined;
     }): nodefs.ReadStream;
+    /**
+     * Returns a new `WriteStream` object.
+     *
+     * @category Read and write
+     */
     createWriteStream(options?: string | {
         flags?: string | undefined;
         encoding?: string | undefined;
@@ -447,7 +552,40 @@ export declare class PathNice {
         start?: number | undefined;
         highWaterMark?: number | undefined;
     }): nodefs.WriteStream;
+    /**
+     * Asynchronous open(2) - open and possibly create a file.
+     *
+     * @param flags See `support of file system `flags`. Default: 'r'.
+     * @param mode A file mode. If a string is passed, it is parsed as an octal integer. If not
+     * supplied, defaults to `0o666`.
+     *
+     * @category Read and write
+     */
     open(flags: string, mode?: number): Promise<nodefs.promises.FileHandle>;
+    /**
+     * Similar to fs.promises.cp(), except that the default value of `options.recursive`
+     * is true.
+     *
+     * Asynchronously copies the entire directory structure from src to dest, including
+     * subdirectories and files.
+     *
+     * @param dest destination path to copy to.
+     * @param options
+     * - options.force: overwrite existing file or directory. The copy operation will
+     * ignore errors if you set this to false and the destination exists. Use the errorOnExist option to change this behavior. Default: true.
+     * - options.dereference: dereference symlinks. Default: false.
+     * - options.errorOnExist: when force is false, and the destination exists, throw an
+     * error. Default: false.
+     * - options.filter: Function to filter copied files/directories. Return true to copy
+     * the item, false to ignore it. Can also return a Promise that resolves to true or false Default: undefined.
+     * - options.preserveTimestamps: When true timestamps from src will be preserved.
+     * Default: false.
+     * - options.recursive: copy directories recursively. Default: true
+     * - options.verbatimSymlinks: When true, path resolution for symlinks will be
+     * skipped. Default: false
+     *
+     * @category Copy, move and remove
+     */
     copyAs(dest: string | PathNice, options?: {
         force?: boolean | null | undefined;
         dereference?: boolean | null | undefined;
@@ -457,6 +595,29 @@ export declare class PathNice {
         recursive: boolean;
         verbatimSymlinks?: boolean | null | undefined;
     } | null): Promise<void>;
+    /**
+     * Similar to .copyAs(), except that files are copied ***into*** destination directory.
+     *
+     * Asynchronously copies the entire directory structure from src into dest directory,
+     * including subdirectories and files.
+     *
+     * @param destDir destination directory to copy into.
+     * @param options
+     * - options.force: overwrite existing file or directory. The copy operation will
+     * ignore errors if you set this to false and the destination exists. Use the errorOnExist option to change this behavior. Default: true.
+     * - options.dereference: dereference symlinks. Default: false.
+     * - options.errorOnExist: when force is false, and the destination exists, throw an
+     * error. Default: false.
+     * - options.filter: Function to filter copied files/directories. Return true to copy
+     * the item, false to ignore it. Can also return a Promise that resolves to true or false Default: undefined.
+     * - options.preserveTimestamps: When true timestamps from src will be preserved.
+     * Default: false.
+     * - options.recursive: copy directories recursively. Default: true
+     * - options.verbatimSymlinks: When true, path resolution for symlinks will be
+     * skipped. Default: false
+     *
+     * @category Copy, move and remove
+     */
     copyToDir(destDir: string | PathNice, options?: {
         force?: boolean | null | undefined;
         dereference?: boolean | null | undefined;
@@ -466,48 +627,120 @@ export declare class PathNice {
         recursive: boolean;
         verbatimSymlinks?: boolean | null | undefined;
     } | null): Promise<void>;
+    /**
+     * Moves a file or directory, even across devices.
+     *
+     * @param dest destination to move to. Note: When src is a file, dest must be a file
+     * and when src is a directory, dest must be a directory.
+     * @param options options.overwrite: overwrite existing file or directory. Default: false
+     *
+     * @category Copy, move and remove
+     */
     moveAs(dest: string | PathNice, options?: {
         overwrite?: boolean | null | undefined;
     } | null): Promise<void>;
+    /**
+     * Similar to .moveAs(), except that files are moved ***into*** destination directory.
+     *
+     * Moves a file or directory, even across devices.
+     *
+     * @param destDir destination directory to move into. Note: When src is a file, dest
+     * must be a file and when src is a directory, dest must be a directory.
+     * @param options options.overwrite: overwrite existing file or directory. Default: false
+     *
+     * @category Copy, move and remove
+     */
     moveToDir(destDir: string | PathNice, options?: {
         overwrite?: boolean | null | undefined;
     } | null): Promise<void>;
+    /**
+     * Asynchronous rename(2) - Change the name or location of a file or directory.
+     *
+     * @param newPath A path to a file. If a URL is provided, it must use the `file:` protocol.
+     * URL support is _experimental_.
+     *
+     * @category Copy, move and remove
+     */
     rename(newPath: string | PathNice): Promise<void>;
+    /**
+     * Removes a file or directory. The directory can have contents. If the path does
+     * not exist, silently does nothing.
+     *
+     * @category Copy, move and remove
+     */
     remove(): Promise<void>;
+    /**
+     * Ensures that a directory is empty. Deletes directory contents if the directory is
+     * not empty. If the directory does not exist, it is created. The directory itself is
+     * not deleted.
+     *
+     * @category Copy, move and remove
+     * @category Ensure
+     */
     emptyDir(): Promise<void>;
+    /**
+     * Ensures that the directory exists. If the directory structure does not exist,
+     * it is created.
+     *
+     * @param options options.mode: directory mode. Default: `0o777`
+     *
+     * @category Ensure
+     */
     ensureDir(options?: {
         mode?: number | string | undefined;
     }): Promise<void>;
+    /**
+     * Ensures that the file exists. If the file that is requested to be created is in
+     * directories that do not exist, these directories are created. If the file already
+     * exists, it is NOT MODIFIED.
+     *
+     * @category Ensure
+     */
     ensureFile(): Promise<void>;
     /**
-     * It is recommended to use `isFile()`, `isDir()`, ...
+     * Note: It is recommended to use `isFile()`, `isDir()`, etc to indicate the type of
+     * path you want to check.
+     *
+     * Check whether the path exists.
+     *
+     * @category Is ... ?
      */
     exists(): Promise<boolean>;
     /**
      * Check if the path is an empty directory.
      *
      * If the path is not a directory, an error will be thrown.
+     *
+     * @category Is ... ?
      */
     isEmptyDir(): Promise<boolean>;
     /**
      * Check if the path is a directory.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
+     *
+     * @category Is ... ?
      */
     isDir(followlink?: boolean): Promise<boolean>;
     /**
      * Check if the path is a file.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
+     *
+     * @category Is ... ?
      */
     isFile(followlink?: boolean): Promise<boolean>;
     /**
      * Check if the path is a symbolic link.
+     *
+     * @category Is ... ?
      */
     isSymbolicLink(): Promise<boolean>;
     /**
      * Asynchronous readdir(3) - read a directory.
      * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     *
+     * @category List directory contents
      */
     readdir(options?: {
         encoding?: BufferEncoding | null | undefined;
@@ -516,6 +749,8 @@ export declare class PathNice {
     /**
      * Asynchronous readdir(3) - read a directory.
      * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     *
+     * @category List directory contents
      */
     readdir(options: {
         encoding: 'buffer';
@@ -524,6 +759,8 @@ export declare class PathNice {
     /**
      * Asynchronous readdir(3) - read a directory.
      * @param options The encoding (or an object specifying the encoding), used as the encoding of the result. If not provided, `'utf8'` is used.
+     *
+     * @category List directory contents
      */
     readdir(options?: {
         encoding?: string | null | undefined;
@@ -532,6 +769,8 @@ export declare class PathNice {
     /**
      * Asynchronous readdir(3) - read a directory.
      * @param options If called with `withFileTypes: true` the result data will be an array of Dirent.
+     *
+     * @category List directory contents
      */
     readdir(options: {
         encoding?: string | null | undefined;
@@ -559,24 +798,34 @@ export declare class PathNice {
      *     .filter(f => f.ext() === '.json')
      *     .updateJSON(json => { json.timestamp = Date.now() })
      * ```
+     *
+     * @category List directory contents
      */
     ls(recursive?: boolean, followLinks?: boolean): Promise<{
         dirs: PathNice[];
         files: PathNice[];
     }>;
     /**
-     * Watch for changes on `filename`. The callback `listener` will be called each time the file is accessed.
+     * Watch for changes on `filename`. The callback `listener` will be called each time
+     * the file is accessed.
+     *
+     * @category Watch
      */
     watchFile(options: {
         persistent?: boolean | undefined;
         interval?: number | undefined;
     } | undefined, listener: (curr: nodefs.Stats, prev: nodefs.Stats) => void): void;
     /**
-     * Watch for changes on `filename`. The callback `listener` will be called each time the file is accessed.
+     * Watch for changes on `filename`. The callback `listener` will be called each time
+     * the file is accessed.
+     *
+     * @category Watch
      */
     watchFile(listener: (curr: nodefs.Stats, prev: nodefs.Stats) => void): void;
     /**
      * Stop watching for changes on `filename`.
+     *
+     * @category Watch
      */
     unwatchFile(listener?: (curr: nodefs.Stats, prev: nodefs.Stats) => void): void;
     /**
@@ -585,6 +834,8 @@ export declare class PathNice {
      * If `encoding` is not supplied, the default of `'utf8'` is used.
      * If `persistent` is not supplied, the default of `true` is used.
      * If `recursive` is not supplied, the default of `false` is used.
+     *
+     * @category Watch
      */
     watch(options: {
         encoding?: BufferEncoding | null | undefined;
@@ -597,6 +848,8 @@ export declare class PathNice {
      * If `encoding` is not supplied, the default of `'utf8'` is used.
      * If `persistent` is not supplied, the default of `true` is used.
      * If `recursive` is not supplied, the default of `false` is used.
+     *
+     * @category Watch
      */
     watch(options: {
         encoding: 'buffer';
@@ -609,6 +862,8 @@ export declare class PathNice {
      * If `encoding` is not supplied, the default of `'utf8'` is used.
      * If `persistent` is not supplied, the default of `true` is used.
      * If `recursive` is not supplied, the default of `false` is used.
+     *
+     * @category Watch
      */
     watch(options: {
         encoding?: string | null | undefined;
@@ -617,10 +872,14 @@ export declare class PathNice {
     } | string | null, listener?: (event: string, filename: string | Buffer) => void): nodefs.FSWatcher;
     /**
      * Watch for changes on `filename`, where `filename` is either a file or a directory, returning an `FSWatcher`.
+     *
+     * @category Watch
      */
     watch(listener?: (event: string, filename: string) => any): nodefs.FSWatcher;
     /**
      * Asynchronous lstat(2) - Get file status. Does not dereference symbolic links.
+     *
+     * @category Others
      */
     lstat(opts?: nodefs.StatOptions & {
         bigint?: false | undefined;
@@ -631,6 +890,8 @@ export declare class PathNice {
     lstat(opts?: nodefs.StatOptions): Promise<nodefs.Stats | nodefs.BigIntStats>;
     /**
      * Asynchronous stat(2) - Get file status.
+     *
+     * @category Others
      */
     stat(opts?: nodefs.StatOptions & {
         bigint?: false | undefined;
@@ -642,19 +903,27 @@ export declare class PathNice {
     /**
      * Asynchronous chmod(2) - Change permissions of a file.
      * @param mode A file mode. If a string is passed, it is parsed as an octal integer.
+     *
+     * @category Others
      */
     chmod(mode: string | number): Promise<void>;
     /**
      * Asynchronous lchmod(2) - Change permissions of a file. Does not dereference symbolic links.
      * @param mode A file mode. If a string is passed, it is parsed as an octal integer.
+     *
+     * @category Others
      */
     lchmod(mode: string | number): Promise<void>;
     /**
      * Asynchronous lchown(2) - Change ownership of a file. Does not dereference symbolic links.
+     *
+     * @category Others
      */
     lchown(uid: number, gid: number): Promise<void>;
     /**
      * Asynchronous chown(2) - Change ownership of a file.
+     *
+     * @category Others
      */
     chown(uid: number, gid: number): Promise<void>;
 }

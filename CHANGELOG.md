@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/FuuuOverclocking/path-nice/compare/v1.1.0...v1.2.0) (2022-07-03)
+
+
+### Features
+
+* **common:** emptyDir now create dir if not exists ([3cf3452](https://github.com/FuuuOverclocking/path-nice/commit/3cf3452b1baa5e4a91adfde279536a2ebcbf0c20))
+* now fn of updateXXX can return a Promise ([6d0640b](https://github.com/FuuuOverclocking/path-nice/commit/6d0640b24bad28615cdfe6513fcc2f6c08453dc1))
+
+
+
 # [1.1.0](https://github.com/FuuuOverclocking/path-nice/compare/v1.0.0...v1.1.0) (2022-07-03)
 
 
