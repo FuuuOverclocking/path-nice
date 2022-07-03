@@ -4,6 +4,7 @@ import type { FileSystem, PlatformPath } from './types.js';
 // This file is a modified version of the fs's cp method.
 // BTW, fs's cp method is a modified version of the fs-extra's copy method.
 // https://github.com/nodejs/node/blob/main/lib/internal/fs/cp/cp.js
+// LICENSE refer to https://github.com/nodejs/node/blob/main/LICENSE
 
 type CopyOptions = {
     force?: boolean | null | undefined;
