@@ -1,0 +1,22 @@
+import { path, PathNice, ParsedPathNice } from './auto/path.js';
+import { pathPosix, PathNicePosix } from './posix/path.js';
+import { pathWin32, PathNiceWin32 } from './win32/path.js';
+path.posix = pathPosix;
+path.win32 = pathWin32;
+path.PathNice = PathNice;
+path.PathNicePosix = PathNicePosix;
+path.PathNiceWin32 = PathNiceWin32;
+pathPosix.posix = pathPosix;
+pathPosix.win32 = pathWin32;
+pathPosix.PathNice = PathNice;
+pathPosix.PathNicePosix = PathNicePosix;
+pathPosix.PathNiceWin32 = PathNiceWin32;
+pathWin32.posix = pathPosix;
+pathWin32.win32 = pathWin32;
+pathWin32.PathNice = PathNice;
+pathWin32.PathNicePosix = PathNicePosix;
+pathWin32.PathNiceWin32 = PathNiceWin32;
+export { path, PathNice, ParsedPathNice };
+export { pathPosix, PathNicePosix };
+export { pathWin32, PathNiceWin32 };
+//# sourceMappingURL=path.js.map

@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.0...v1.2.1) (2022-07-03)
+
+
+### Bug Fixes
+
+* adjust import / export structure to fix esm ([ea58149](https://github.com/FuuuOverclocking/path-nice/commit/ea58149418dd4043865770a743235b3d11af82a5))
+
+
+
 # [1.2.0](https://github.com/FuuuOverclocking/path-nice/compare/v1.1.0...v1.2.0) (2022-07-03)
 
 

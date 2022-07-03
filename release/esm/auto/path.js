@@ -1,7 +1,5 @@
 import * as nodepath from 'path';
 import { PathNice, ParsedPathNice } from './path-nice.js';
-import { pathPosix, PathNicePosix } from '../posix/path.js';
-import { pathWin32, PathNiceWin32 } from '../win32/path.js';
 const lowpath = nodepath;
 export { PathNice, ParsedPathNice };
 export const path = ((...paths) => {
@@ -24,9 +22,4 @@ for (const [k, v] of Object.entries(lowpath)) {
         path[k] = v;
     }
 }
-path.posix = pathPosix;
-path.win32 = pathWin32;
-path.PathNice = PathNice;
-path.PathNicePosix = PathNicePosix;
-path.PathNiceWin32 = PathNiceWin32;
 //# sourceMappingURL=path.js.map

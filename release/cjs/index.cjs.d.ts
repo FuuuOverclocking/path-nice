@@ -1,2 +1,2 @@
-import { path } from './auto/path.js';
+import { path } from './path.js';
 export = path;

@@ -1,7 +1,8 @@
-import { pathWin32 } from './win32/path.js';
+import { pathWin32, PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 } from './path.js';
 export default pathWin32;
 // prettier-ignore
-const { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, PathNice, PathNicePosix, PathNiceWin32 } = pathWin32;
+const { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, } = pathWin32;
+export { posix, win32 };
 // prettier-ignore
-export { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, PathNice, PathNicePosix, PathNiceWin32 };
+export { delimiter, sep, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
 //# sourceMappingURL=win32.esm.js.map

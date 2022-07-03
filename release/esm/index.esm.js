@@ -1,6 +1,4 @@
-import { path, PathNice, ParsedPathNice } from './auto/path.js';
-import { PathNicePosix } from './posix/path.js';
-import { PathNiceWin32 } from './win32/path.js';
+import { path, PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 } from './path.js';
 /** @category 🌟 */
 export default path;
 // prettier-ignore

@@ -27,8 +27,6 @@ exports.pathWin32 = exports.PathNiceWin32 = void 0;
 const nodepath = __importStar(require("path"));
 const path_nice_win32_js_1 = require("./path-nice-win32.js");
 Object.defineProperty(exports, "PathNiceWin32", { enumerable: true, get: function () { return path_nice_win32_js_1.PathNiceWin32; } });
-const path_js_1 = require("../auto/path.js");
-const path_js_2 = require("../posix/path.js");
 const lowpath = nodepath;
 // prettier-ignore
 exports.pathWin32 = ((str, fs) => str
@@ -42,9 +40,4 @@ for (const [k, v] of Object.entries(lowpath)) {
         exports.pathWin32[k] = v;
     }
 }
-exports.pathWin32.posix = path_js_2.pathPosix;
-exports.pathWin32.win32 = exports.pathWin32;
-exports.pathWin32.PathNice = path_js_1.PathNice;
-exports.pathWin32.PathNicePosix = path_js_2.PathNicePosix;
-exports.pathWin32.PathNiceWin32 = path_nice_win32_js_1.PathNiceWin32;
 //# sourceMappingURL=path.js.map

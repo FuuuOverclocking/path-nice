@@ -1,2 +1,2 @@
-import { pathPosix } from './posix/path.js';
+import { pathPosix } from './path.js';
 export = pathPosix;

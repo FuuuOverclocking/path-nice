@@ -1,5 +1,5 @@
 import type { FileSystem } from '../common/types.js';
-import { Join } from './type-gymnastics.js';
+import type { Join } from './type-gymnastics.js';
 export declare class PathNicePosix<P extends string> {
     /** Raw path string. */
     readonly raw: P;

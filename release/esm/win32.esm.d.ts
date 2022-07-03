@@ -1,5 +1,8 @@
-import { pathWin32 } from './win32/path.js';
+import { pathWin32, PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 } from './path.js';
+import type { Path, PathPosix, PathWin32, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath } from './common/types.js';
 export default pathWin32;
-export { FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, } from './common/types.js';
-declare const delimiter: string, sep: string, posix: import("./common/types.js").PathPosix, win32: import("./common/types.js").PathWin32, basename: (p: string, ext?: string | undefined) => string, dirname: (p: string) => string, extname: (p: string) => string, format: (pP: import("./common/types.js").FormatInputPathObject) => string, isAbsolute: (p: string) => boolean, join: (...paths: string[]) => string, normalize: (p: string) => string, parse: (p: string) => import("./common/types.js").ParsedPath, relative: (from: string, to: string) => string, resolve: (...pathSegments: string[]) => string, toNamespacedPath: (path: string) => string, PathNice: typeof import("./index.esm.js").PathNice, PathNicePosix: typeof import("./index.esm.js").PathNicePosix, PathNiceWin32: typeof import("./win32/path-nice-win32.js").PathNiceWin32;
-export { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, PathNice, PathNicePosix, PathNiceWin32 };
+declare const delimiter: string, sep: string, posix: PathPosix, win32: PathWin32, basename: (p: string, ext?: string | undefined) => string, dirname: (p: string) => string, extname: (p: string) => string, format: (pP: FormatInputPathObject) => string, isAbsolute: (p: string) => boolean, join: (...paths: string[]) => string, normalize: (p: string) => string, parse: (p: string) => ParsedPath, relative: (from: string, to: string) => string, resolve: (...pathSegments: string[]) => string, toNamespacedPath: (path: string) => string;
+export { posix, win32 };
+export { delimiter, sep, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
+export type { Path, PathPosix, PathWin32, PathNice, PathNicePosix, PathNiceWin32 };
+export type { ParsedPathNice, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, };

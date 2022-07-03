@@ -28,8 +28,6 @@ const nodepath = __importStar(require("path"));
 const path_nice_js_1 = require("./path-nice.js");
 Object.defineProperty(exports, "PathNice", { enumerable: true, get: function () { return path_nice_js_1.PathNice; } });
 Object.defineProperty(exports, "ParsedPathNice", { enumerable: true, get: function () { return path_nice_js_1.ParsedPathNice; } });
-const path_js_1 = require("../posix/path.js");
-const path_js_2 = require("../win32/path.js");
 const lowpath = nodepath;
 exports.path = ((...paths) => {
     if (paths.length === 1) {
@@ -51,9 +49,4 @@ for (const [k, v] of Object.entries(lowpath)) {
         exports.path[k] = v;
     }
 }
-exports.path.posix = path_js_1.pathPosix;
-exports.path.win32 = path_js_2.pathWin32;
-exports.path.PathNice = path_nice_js_1.PathNice;
-exports.path.PathNicePosix = path_js_1.PathNicePosix;
-exports.path.PathNiceWin32 = path_js_2.PathNiceWin32;
 //# sourceMappingURL=path.js.map
