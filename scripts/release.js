@@ -9,12 +9,12 @@ async function main() {
 
     console.log('release: v' + version);
 
-    if (await x('git branch --show-current') !== 'dev') {
+    if ((await x('git branch --show-current')) !== 'dev') {
         console.log(`x('git branch --show-current') !== 'dev'`);
         return;
     }
 
-    if (await x('git status --porcelain') !== '') {
+    if ((await x('git status --porcelain')) !== '') {
         console.log(`x('git status --porcelain') !== ''`);
         return;
     }
@@ -65,7 +65,7 @@ function getInput() {
     if (n <= currN) {
         throw new Error('invalid version');
     }
-    
+
     return version;
 }
 
@@ -121,8 +121,12 @@ async function genRelease() {
     await path('release').ensureDir();
 
     await Promise.all([
-        path('build/cjs').copyToDir('release'),
-        path('build/esm').copyToDir('release'),
+        path('build/cjs')
+            .copyToDir('release')
+            .then(() => path('release/cjs/package.json').writeJSON({ type: 'commonjs' })),
+        path('build/esm')
+            .copyToDir('release')
+            .then(() => path('release/esm/package.json').writeJSON({ type: 'module' })),
         path('release/posix/package.json').outputJSON(genSubPkgJSON('posix')),
         path('release/win32/package.json').outputJSON(genSubPkgJSON('win32')),
         path('package.json')
@@ -183,12 +187,7 @@ async function genRelease() {
                     require: './cjs/win32.cjs.js',
                 },
             },
-            files: [
-                "cjs/",
-                "esm/",
-                "posix/",
-                "win32/",
-            ],
+            files: ['cjs/', 'esm/', 'posix/', 'win32/'],
         };
     }
 }
