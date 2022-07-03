@@ -7,5 +7,8 @@ declare const delimiter: string, sep: string, posix: PathPosix, win32: PathWin32
 export { posix, win32 };
 export { delimiter, sep, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
 /** @category 🌟 */
-export type { Path, PathPosix, PathWin32, PathNice, PathNicePosix, PathNiceWin32 };
-export type { ParsedPathNice, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, };
+export { PathNice, PathNicePosix, PathNiceWin32 };
+export { ParsedPathNice };
+/** @category 🌟 */
+export type { Path, PathPosix, PathWin32 };
+export type { FileSystem, ParsedPath, FormatInputPathObject, PlatformPath };

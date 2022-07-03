@@ -1,3 +1,12 @@
+## [1.2.3](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.2...v1.2.3) (2022-07-03)
+
+
+### Bug Fixes
+
+* fix exports ([741e332](https://github.com/FuuuOverclocking/path-nice/commit/741e332f4dd9e838ac41c68a11d7a2f01cdae15c))
+
+
+
 ## [1.2.2](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.1...v1.2.2) (2022-07-03)
 
 
