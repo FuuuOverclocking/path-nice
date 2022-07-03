@@ -15,23 +15,26 @@
     "engines": {
         "node": ">=12"
     },
-    "main": "See ./scripts/prerelease.js",
-    "module": "See scripts/prerelease.js",
-    "types": "See scripts/prerelease.js",
-    "exports": "See scripts/prerelease.js",
+    "main": "See ./release/package.json",
+    "module": "See ./release/package.json",
+    "types": "See ./release/package.json",
+    "exports": "See ./release/package.json",
+    "files": "See ./release/package.json",
     "scripts": {
         "build": "tsc -p tsconfig.cjs.json",
         "watch": "tsc -w -p tsconfig.cjs.json",
         "test": "jest",
         "docs": "typedoc --options typedoc.json",
-        "cz": "cz"
+        "cz": "cz",
+        "release": "node ./scripts/release.js"
     },
     "devDependencies": {
         "@types/fs-extra": "^9.0.13",
         "@types/jest": "^28.1.4",
         "@types/node": "^12.12.6",
+        "chalk": "^4.1.2",
         "commitizen": "^4.2.4",
-        "concurrently": "^7.2.2",
+        "conventional-changelog-cli": "^2.2.2",
         "cz-conventional-changelog": "3.3.0",
         "fs-extra": "^10.1.0",
         "jest": "^28.1.2",
@@ -41,11 +44,6 @@
         "typedoc": "^0.22.18",
         "typescript": "^4.7.4"
     },
-    "files": [
-        "dist/",
-        "posix/",
-        "win32/"
-    ],
     "sideEffects": false,
     "keywords": [
         "path",
