@@ -24,8 +24,8 @@
         "build": "tsc -p tsconfig.cjs.json",
         "watch": "tsc -w -p tsconfig.cjs.json",
         "test": "jest",
-        "docs": "typedoc --options typedoc.json",
         "cz": "cz",
+        "docs": "node ./scripts/gen-docs.js",
         "release": "node ./scripts/release.js"
     },
     "devDependencies": {

@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const chalk = require('chalk');
-const util = require('util');
-const { spawn, exec } = require('child_process');
+const { x, shell } = require('./utils');
 
 main();
 async function main() {
@@ -29,12 +28,14 @@ async function main() {
     await shell('jest');
 
     const path = require('../build/cjs/index.cjs.js');
+
     await path('package.json').updateJSON((pkg) => {
         pkg.version = version;
     });
-    await genDocs();
     await genRelease();
+    await shell('yarn docs');
     await shell('conventional-changelog -p angular -i CHANGELOG.md -s');
+
     await shell('git add -A');
     await shell(`git commit -m "chore: release ${version}"`);
     await shell('git push');
@@ -67,51 +68,6 @@ function getInput() {
     }
 
     return version;
-}
-
-async function x(cmd) {
-    console.log(chalk.bgCyan(cmd));
-    const { stdout } = await util.promisify(exec)(cmd);
-    return stdout.trim();
-}
-
-async function shell(cmd) {
-    console.log(chalk.bgCyan(cmd));
-    return new Promise((ok, err) => {
-        const proc = spawn(cmd, {
-            stdio: 'inherit',
-            shell: true,
-        });
-        proc.on('close', (code) => {
-            if (code === 0) ok();
-            err(code ?? 1);
-        });
-    });
-}
-
-async function genDocs() {
-    const path = require('../build/cjs/index.cjs.js');
-    await path('README.md').rename('README-en.md');
-    await path('README-cn.md').rename('README.md');
-
-    await shell('yarn docs');
-
-    await path('docs/index.html').rename('docs/index-cn.html');
-
-    await path('README.md').rename('README-cn.md');
-    await path('README-en.md').rename('README.md');
-
-    await shell('yarn docs');
-
-    await Promise.all([fixPath('docs/index.html'), fixPath('docs/index-cn.html')]);
-
-    async function fixPath(filepath) {
-        await path(filepath).updateString((str) => {
-            str = str.replace('<a href="README-cn.md">', '<a href="index-cn.html">');
-            str = str.replace('<a href="README.md">', '<a href="index.html">');
-            return str;
-        });
-    }
 }
 
 async function genRelease() {

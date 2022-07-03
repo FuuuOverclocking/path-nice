@@ -8,5 +8,16 @@
     "githubPages": true,
     "categorizeByGroup": true,
     "defaultCategory": " ",
-    "categoryOrder": ["🌟", "*"]
+    "categoryOrder": [
+        "🌟",
+        "Path related",
+        "Read and write",
+        "Copy, move and remove",
+        "Ensure",
+        "Is ... ?",
+        "List directory contents",
+        "Watch",
+        "Others",
+        "*"
+    ]
 }
