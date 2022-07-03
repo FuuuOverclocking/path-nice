@@ -1,0 +1,1 @@
+{"version":3,"file":"path-nice-win32.js","sourceRoot":"","sources":["../../../src/win32/path-nice-win32.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,+CAAiC;AACjC,2CAA6B;AAG7B,MAAM,OAAO,GAAG,QAAQ,CAAC,KAAK,CAAC;AAE/B,MAAa,aAAa;IAMtB,YAAY,GAAM,EAAE,EAAe;QAC/B,IAAI,CAAC,GAAG,GAAG,GAAG,CAAC;QACf,IAAI,CAAC,EAAE,GAAG,EAAE,IAAI,MAAM,CAAC;IAC3B,CAAC;CACJ;AAVD,sCAUC"}

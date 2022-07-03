@@ -15,11 +15,32 @@
     "engines": {
         "node": ">=12"
     },
-    "main": "See ./release/package.json",
-    "module": "See ./release/package.json",
-    "types": "See ./release/package.json",
-    "exports": "See ./release/package.json",
-    "files": "See ./release/package.json",
+    "main": "./cjs/index.cjs.js",
+    "module": "./esm/index.esm.js",
+    "types": "./esm/index.esm.d.ts",
+    "exports": {
+        ".": {
+            "types": "./esm/index.esm.d.ts",
+            "import": "./esm/index.esm.js",
+            "require": "./cjs/index.cjs.js"
+        },
+        "./posix": {
+            "types": "./esm/posix.esm.d.ts",
+            "import": "./esm/posix.esm.js",
+            "require": "./cjs/posix.cjs.js"
+        },
+        "./win32": {
+            "types": "./esm/win32.esm.d.ts",
+            "import": "./esm/win32.esm.js",
+            "require": "./cjs/win32.cjs.js"
+        }
+    },
+    "files": [
+        "cjs/",
+        "esm/",
+        "posix/",
+        "win32/"
+    ],
     "scripts": {
         "build": "tsc -p tsconfig.cjs.json",
         "watch": "tsc -w -p tsconfig.cjs.json",
