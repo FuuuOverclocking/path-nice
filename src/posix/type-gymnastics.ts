@@ -1,14 +1,35 @@
+import type { PathNicePosix } from "./path-nice-posix";
+
+export type PathToString<P extends string | PathNicePosix<string>> =
+    P extends string
+        ? P
+        : P extends PathNicePosix<infer A extends string>
+            ? A
+            : never
+        ;
+
+type ArrayPathToArrayString<P extends Array<string | PathNicePosix<string>>> =
+    P extends []
+        ? []
+        : P extends [infer A extends string | PathNicePosix<string>]
+            ? [PathToString<A>]
+            : P extends [infer B extends string | PathNicePosix<string>,
+                         ...infer Rest extends Array<string | PathNicePosix<string>>]
+                ? [PathToString<B>, ...ArrayPathToArrayString<Rest>]
+                : never
+    ;
+
 /**
  * Template meta programming version of path.posix.join().
  *
  * See https://github.com/nodejs/node/blob/84db3e7b06979a388a65d8ebce2571554c2dadd6/lib/path.js#L1166
  */
-export type Join<Paths extends string[]> =
-    HasString<Paths> extends true
+export type Join<Paths extends Array<string | PathNicePosix<string>>> =
+    HasString<ArrayPathToArrayString<Paths>> extends true
         ? string
-        : Joined<'', Paths> extends ''
+        : Joined<'', ArrayPathToArrayString<Paths>> extends ''
             ? '.'
-            : Normalize<Joined<'', Paths>>
+            : Normalize<Joined<'', ArrayPathToArrayString<Paths>>>
     ;
 
 type HasString<Paths extends string[]> =

@@ -11,8 +11,8 @@ export class PathNicePosix<P extends string> {
 
     private readonly fs: FileSystem;
 
-    constructor(str: P, fs?: FileSystem) {
-        this.raw = str;
+    constructor(path: P, fs?: FileSystem) {
+        this.raw = path;
         this.fs = fs || nodefs;
     }
 
@@ -20,9 +20,10 @@ export class PathNicePosix<P extends string> {
         return new PathNicePosix<P>(str, this.fs);
     }
 
-    public join<Paths extends string[]>(
+    public join<Paths extends Array<string | PathNicePosix<string>>>(
         ...paths: Paths
     ): PathNicePosix<Join<[P, ...Paths]>> {
-        return this._new(lowpath.join(this.raw, ...paths)) as any;
+        const _paths = paths.map((p) => (typeof p === 'string' ? p : p.raw));
+        return this._new(lowpath.join(this.raw, ..._paths)) as any;
     }
 }
