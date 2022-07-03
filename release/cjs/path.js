@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PathNiceWin32 = exports.pathWin32 = exports.PathNicePosix = exports.pathPosix = exports.ParsedPathNice = exports.PathNice = exports.path = void 0;
-const path_js_1 = require("./auto/path.js");
+const path_js_1 = require("./platform/path.js");
 Object.defineProperty(exports, "path", { enumerable: true, get: function () { return path_js_1.path; } });
 Object.defineProperty(exports, "PathNice", { enumerable: true, get: function () { return path_js_1.PathNice; } });
 Object.defineProperty(exports, "ParsedPathNice", { enumerable: true, get: function () { return path_js_1.ParsedPathNice; } });

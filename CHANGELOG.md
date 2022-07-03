@@ -1,3 +1,12 @@
+## [1.2.2](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.1...v1.2.2) (2022-07-03)
+
+
+### Features
+
+* pathPosix() can accept multiple parameters, can be strings or paths, and infer the return type ([5c229ba](https://github.com/FuuuOverclocking/path-nice/commit/5c229bacaa8c83734e67ba9f5b112eaa5d35d7fa))
+
+
+
 ## [1.2.1](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.0...v1.2.1) (2022-07-03)
 
 

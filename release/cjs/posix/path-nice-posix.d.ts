@@ -4,7 +4,7 @@ export declare class PathNicePosix<P extends string> {
     /** Raw path string. */
     readonly raw: P;
     private readonly fs;
-    constructor(str: P, fs?: FileSystem);
+    constructor(path: P, fs?: FileSystem);
     private _new;
-    join<Paths extends string[]>(...paths: Paths): PathNicePosix<Join<[P, ...Paths]>>;
+    join<Paths extends Array<string | PathNicePosix<string>>>(...paths: Paths): PathNicePosix<Join<[P, ...Paths]>>;
 }

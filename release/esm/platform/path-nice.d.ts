@@ -5,6 +5,38 @@ import type { ParsedPath } from '../common/types.js';
 /**
  * A PathNice instance is a wrapper of the raw path string, so that the path
  * can be easily used to generate additional paths or manipulate files.
+ *
+ * For details, refer to [docs of PathNice](https://fuuuoverclocking.github.io/path-nice/classes/PathNice.html).
+ *
+ * @example
+ *
+ * Get a instance:
+ *
+ * ```ts
+ * $ let src: PathNice = path('./src')
+ * ```
+ *
+ * Get the raw path string:
+ *
+ * ```ts
+ * $ src.raw
+ * './src'
+ * ```
+ *
+ * Use `src` to generate another path:
+ *
+ * ```ts
+ * $ src.join('index.ts')
+ * PathNice { raw: 'src/index.ts' }  // on POSIX
+ * PathNice { raw: 'src\\index.ts' } // on Windows
+ * ```
+ *
+ * Use `src` to write a file:
+ *
+ * ```ts
+ * $ src.join('index.ts').writeFile('export default 42;')
+ * Promise { <pending> ... }
+ * ```
  */
 export declare class PathNice {
     /** Raw path string. */

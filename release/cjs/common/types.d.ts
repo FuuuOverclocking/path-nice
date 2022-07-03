@@ -2,16 +2,52 @@
 import type nodefs from 'fs';
 import type { IFs as memfs } from 'memfs';
 import type fsExtra from 'fs-extra';
-import type { PathNice } from '../auto/path-nice.js';
+import type { PathNice } from '../platform/path-nice.js';
 import type { PathNicePosix } from '../posix/path-nice-posix.js';
 import type { PathNiceWin32 } from '../win32/path-nice-win32.js';
+import type { Join, PathToString } from '../posix/type-gymnastics.js';
 export declare type FileSystem = typeof nodefs | typeof fsExtra | memfs;
 export interface Path extends PlatformPath {
     /**
      * Get a new instance of PathNice.
      *
-     * @param paths usually only one path should be given; if multiple, join them
+     * A PathNice instance is a wrapper of the raw path string, so that the path
+     * can be easily used to generate additional paths or manipulate files.
+     *
+     * For details, refer to [docs of PathNice](https://fuuuoverclocking.github.io/path-nice/classes/PathNice.html).
+     *
+     * @param paths in most case, only one path should be given; if multiple, join them
      * together; if zero, the path will be '.'
+     *
+     * @example
+     *
+     * Get a instance:
+     *
+     * ```ts
+     * $ let src: PathNice = path('./src')
+     * ```
+     *
+     * Get the raw path string:
+     *
+     * ```ts
+     * $ src.raw
+     * './src'
+     * ```
+     *
+     * Use `src` to generate another path:
+     *
+     * ```ts
+     * $ src.join('index.ts')
+     * PathNice { raw: 'src/index.ts' }  // on POSIX
+     * PathNice { raw: 'src\\index.ts' } // on Windows
+     * ```
+     *
+     * Use `src` to write a file:
+     *
+     * ```ts
+     * $ src.join('index.ts').writeFile('export default 42;')
+     * Promise { <pending> ... }
+     * ```
      */
     (...paths: Array<string | PathNice>): PathNice;
     /**
@@ -30,11 +66,9 @@ export interface PathPosix extends PlatformPath {
     /**
      * Get a new instance of PathNicePosix.
      *
-     * @param str the path string
-     * @param fs you can replace the original fs with something like memfs that has
-     *           a file system API.
+     * @param paths the path string
      */
-    <P extends string>(str: P, fs?: FileSystem): PathNicePosix<P>;
+    <P extends Array<string | PathNicePosix<string>>>(...paths: P): PathPosixReturnType<P>;
     bindFS(fs: FileSystem): PathPosix;
     /**
      * Posix specific pathing.
@@ -48,6 +82,7 @@ export interface PathPosix extends PlatformPath {
     readonly PathNicePosix: typeof PathNicePosix;
     readonly PathNiceWin32: typeof PathNiceWin32;
 }
+declare type PathPosixReturnType<P extends Array<string | PathNicePosix<string>>> = P extends [] ? PathNicePosix<'.'> : P extends [infer A extends string | PathNicePosix<string>] ? PathNicePosix<PathToString<A>> : PathNicePosix<Join<P>>;
 export interface PathWin32 extends PlatformPath {
     /**
      * Get a new instance of PathNiceWin32.
@@ -215,3 +250,4 @@ export interface PlatformPath {
      */
     readonly win32: PlatformPath;
 }
+export {};

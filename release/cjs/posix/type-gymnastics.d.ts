@@ -1,9 +1,15 @@
+import type { PathNicePosix } from "./path-nice-posix";
+export declare type PathToString<P extends string | PathNicePosix<string>> = P extends string ? P : P extends PathNicePosix<infer A extends string> ? A : never;
+declare type ArrayPathToArrayString<P extends Array<string | PathNicePosix<string>>> = P extends [] ? [] : P extends [infer A extends string | PathNicePosix<string>] ? [PathToString<A>] : P extends [
+    infer B extends string | PathNicePosix<string>,
+    ...infer Rest extends Array<string | PathNicePosix<string>>
+] ? [PathToString<B>, ...ArrayPathToArrayString<Rest>] : never;
 /**
  * Template meta programming version of path.posix.join().
  *
  * See https://github.com/nodejs/node/blob/84db3e7b06979a388a65d8ebce2571554c2dadd6/lib/path.js#L1166
  */
-export declare type Join<Paths extends string[]> = HasString<Paths> extends true ? string : Joined<'', Paths> extends '' ? '.' : Normalize<Joined<'', Paths>>;
+export declare type Join<Paths extends Array<string | PathNicePosix<string>>> = HasString<ArrayPathToArrayString<Paths>> extends true ? string : Joined<'', ArrayPathToArrayString<Paths>> extends '' ? '.' : Normalize<Joined<'', ArrayPathToArrayString<Paths>>>;
 declare type HasString<Paths extends string[]> = Paths extends [] ? false : Paths extends [infer A] ? string extends A ? true : false : Paths extends [infer B, ...infer Rest] ? string extends B ? true : Rest extends string[] ? HasString<Rest> : never : never;
 declare type Joined<Curr extends string, Paths extends string[]> = Paths extends [] ? Curr : Paths extends [infer P] ? P extends string ? Joined_1<Curr, P> : never : Paths extends [infer P1, ...infer PRest] ? P1 extends string ? PRest extends string[] ? Joined<Joined_1<Curr, P1>, PRest> : never : never : never;
 declare type Joined_1<Curr extends string, P extends string> = P extends '' ? Curr : Curr extends '' ? P : `${Curr}/${P}`;

@@ -28,15 +28,16 @@ const nodepath = __importStar(require("path"));
 const nodefs = __importStar(require("fs"));
 const lowpath = nodepath.posix;
 class PathNicePosix {
-    constructor(str, fs) {
-        this.raw = str;
+    constructor(path, fs) {
+        this.raw = path;
         this.fs = fs || nodefs;
     }
     _new(str) {
         return new PathNicePosix(str, this.fs);
     }
     join(...paths) {
-        return this._new(lowpath.join(this.raw, ...paths));
+        const _paths = paths.map((p) => (typeof p === 'string' ? p : p.raw));
+        return this._new(lowpath.join(this.raw, ..._paths));
     }
 }
 exports.PathNicePosix = PathNicePosix;
