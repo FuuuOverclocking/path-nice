@@ -30,12 +30,11 @@ export {
 };
 
 /** @category 🌟 */
-export type { Path, PathPosix, PathWin32, PathNice, PathNicePosix, PathNiceWin32 };
+export { PathNice, PathNicePosix, PathNiceWin32 };
 
-export type {
-    ParsedPathNice,
-    FileSystem,
-    ParsedPath,
-    FormatInputPathObject,
-    PlatformPath,
-};
+export { ParsedPathNice };
+
+/** @category 🌟 */
+export type { Path, PathPosix, PathWin32 };
+
+export type { FileSystem, ParsedPath, FormatInputPathObject, PlatformPath };

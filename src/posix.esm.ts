@@ -1,4 +1,10 @@
-import { pathPosix, PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 } from './path.js';
+import {
+    pathPosix,
+    PathNice,
+    ParsedPathNice,
+    PathNicePosix,
+    PathNiceWin32,
+} from './path.js';
 import type {
     Path,
     PathPosix,
@@ -18,19 +24,19 @@ const {
     relative, resolve, toNamespacedPath,
 } = pathPosix;
 
-export { posix, win32 };
-
 // prettier-ignore
 export {
-    delimiter, sep,
+    delimiter, sep, posix, win32,
     basename, dirname, extname, format, isAbsolute, join, normalize, parse,
     relative, resolve, toNamespacedPath,
 };
 
-export type { Path, PathPosix, PathWin32, PathNice, PathNicePosix, PathNiceWin32 };
+export { PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 };
 
 export type {
-    ParsedPathNice,
+    Path,
+    PathPosix,
+    PathWin32,
     FileSystem,
     ParsedPath,
     FormatInputPathObject,
