@@ -38,7 +38,9 @@ async function main() {
 
     await sh('git add -A');
     await sh(`git commit -m "chore: release ${version}"`);
-    await sh('git push');
+    await sh('git checkout dev');
+    await sh('git merge main');
+    await sh('git push --all');
     await sh(`git tag v${version}`);
     await sh(`git push origin v${version}`);
 

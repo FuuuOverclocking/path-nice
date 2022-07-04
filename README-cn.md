@@ -6,7 +6,7 @@
 
 如果有时你对 Node.js 的原装 `path` 与 `fs` 觉得不 nice, 那么只需
 
-![Add nice here](https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/add-nice-here-cn.png)
+<img src="https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/add-nice-here-cn.png" width="500" />
 
 现有代码依然正常工作, 但 `path` 却已进化.
 
@@ -14,23 +14,22 @@
 
 ### 一个库搞定 `path` 与 `fs`, 还能大大缩短代码
 
-原始版 👇
+原始版:
 
 ```ts
 const src = path.resolve('./src');
-const filename = path.join(src, 'index.ts');
 await fs.promises.writeFile(
-    filename,
+    path.join(src, 'index.ts'),
     'export default 42;',
 );
 ```
 
-nice 版 👇
+nice 版:
 
 ```ts
 const src = path('./src').toAbsolute();
-const filename = src.join('index.ts');
-await filename.writeFile('export default 42;')
+await src.join('index.ts')
+         .writeFile('export default 42;');
 ```
 
 ### 注释翔实, 文档不用翻, 例子全都有
@@ -41,10 +40,10 @@ await filename.writeFile('export default 42;')
 
 ```ts
 import path from 'path-nice';
-import { fs } from 'memfs';
+import { fs as memfs } from 'memfs';
 
 const mpath = path
-    .posix          // 强制使用 POSIX 风格的路径
+    .posix          // 使用 POSIX 风格的路径 (memfs 仅支持该风格)
     .bindFS(memfs); // 绑定文件系统
 
 await mpath('/index.ts')
@@ -77,6 +76,8 @@ yarn add path-nice
 
 > ⚠️ 这个库的 API 将在 2.0 版达到稳定, 在此之前请勿在生产中使用.
 
+举例如下, 完整的用法请参考 [API Reference](https://fuuuoverclocking.github.io/path-nice/interfaces/Path.html).
+
 在 `path` 后添加一对 `()` 以进入 "nice" 模式.
 
 ```ts
@@ -84,184 +85,129 @@ import path from 'path-nice'
 
 const pkg = path('./package.json')
 
+// 是 PathNice 的实例
 pkg instanceof path.PathNice    // true
+
+// 是一个不可变对象, 所有属性是只读的
 Object.isFrozen(pkg)            // true
+
+// 一个 PathNice 实例是对 raw path string 的包装,
+// 用于方便地生成其他路径, 或操作文件
+pkg.raw                         // './package.json'
 ```
 
 ### Path 相关方法
 
+<p align="center"><img src="docs/images/path-parts.png" width="500" /></p>
+
 ```ts
-const a = path('path-nice/src')
+const f = path('path-nice/src/index.ts')
 
-a.raw                           // 'path-nice/src'
+// 以下 4 个方法: 0 个参数 = get, 1 个参数 = set
 
-a.join('index.ts')              // path('path-nice/src/index.ts')
+f.dirname()                     // path('path-nice/src')
+f.dirname('another-dir')        // path('another-dir/index.ts')
 
-a.parent                        // 👇 Same to .dirname()
-a.dirname()                     // path('path-nice')
-a.dirname('/work')              // path('/work/src')
+f.filename()                    // 'index.ts'
+f.filename('types.ts')          // path('path-nice/src/types.ts')
 
-a.filename()                    // 'src'
-a.filename('docs')              // path('path-nice/docs')
+f.ext()                         // '.ts'
+f.ext('.js')                    // path('path-nice/src/index.js')
 
-const b = path('index.ts')
+f.separaotr()                   // '/'
+f.separaotr('\\')               // path('path-nice\\src\\index.ts')
 
-b.ext()                         // '.ts'
-b.ext('.js')                    // path('index.js')
-b.ext(null)                     // path('index')
+// .parent 是 .dirname() 的别名, 可获取父目录路径
+f.parent.raw === f.dirname().raw // true
 
-const c = a.join(b)
+const f2 = f.parent.parent.join('package.json')
+f2.raw                          // 'path-nice/package.json'
 
-c.prefixFilename('old.')        // path('path-nice/src/old.index.ts')
-c.postfixBeforeExt('.old')      // path('path-nice/src/index.old.ts')
-c.postfix('.old')               // path('path-nice/src/index.ts.old')
+f2.prefixFilename('old.')       // path('path-nice/old.package.json')
+f2.postfixBeforeExt('.old')     // path('path-nice/package.old.json')
+f2.postfix('.old')              // path('path-nice/package.json.old')
 
-c.isAbsolute()                  // false
-c.toAbsolute()                  // path('/work/path-nice/src/index.ts'), suppose cwd is '/work'
-c.toRelative('path-nice/docs')  // path('../src/index.ts')
-await c.realpath()              // path('/work/path-nice/src/index.ts'), suppose cwd is '/work',
+f2.isAbsolute()                 // false
+f2.toAbsolute()                 // path('/work/path-nice/package.json'), suppose cwd is '/work'
+f2.toRelative('path-nice/docs') // path('../package.json')
+await f2.realpath()             // path('/work/path-nice/package.json'), suppose cwd is '/work',
                                 // and there are no symbolic links here.
 
-const d = c.toAbsolute().parse()
+const parsedF2 = f2.toAbsolute().parse()
 
-d.root()                        // '/'
-d.dir()                         // '/work/path-nice/src'
-d.base()                        // 'index.ts'
-d.name()                        // 'index'
-d.ext()                         // '.ts'
+// 0 个参数 = get, 1 个参数 = set
 
-d.dir('/home/fuu').ext('.json').format()
-                                // path('/home/fuu/index.json')
+parsedF2.root()                 // '/'
+parsedF2.dir()                  // '/work/path-nice'
+parsedF2.base()                 // 'package.json'
+parsedF2.name()                 // 'package'
+parsedF2.ext()                  // '.json'
+
+parsedF2.dir('/home/fuu').ext('.md')
+    .format()                   // path('/home/fuu/package.md')
 ```
-
 
 ### 文件系统相关方法
 
-#### Promise ver
+#### Read and write
 
-##### Read and write
+- readFile: 读取文件, 返回 string 或 Buffer, 返回哪个取决于是否设置编码
+- readString: 读取文件, 保证返回 string, 默认 UTF-8
+- readBuffer: 读取文件, 保证返回 Buffer
+- readJSON
+- writeFile
+- writeJSON: 默认 UTF-8, 4 个空格缩进
+- outputFile: 等同于 writeFile, 但如果文件目录不存在, 自动创建
+- outputJSON
+- updateString: 例如 `path('README.md').updateString(str => str.replace(/path/g, 'path-nice'))`
+- updateJSON: 例如 `path('package.json').updateJSON(json => { json.version = '1.0.0' })`
+- appendFile
+- createReadStream
+- createWriteStream
+- open
 
-```ts
-.readFile
-.readString
-.readBuffer
-.writeFile
-.writeJSON
-.updateString
-.updateJSON
-.appendFile
-.createReadStream
-.createWriteStream
-.open
-```
+#### Copy, move and remove
 
-##### Copy, move and remove
+- copyAs
+- copyToDir
+- moveAs
+- moveToDir
+- remove
+- rename
+- emptyDir
 
-```ts
-.copyTo
-.moveTo
-.rename
-.remove
-.emptyDir
-```
+#### Ensure
 
-##### Ensure
+确保文件夹或文件存在, 如果不存在, 则自动创建.
 
-```ts
-.ensureDir
-.ensureFile
-```
+- emptyDir
+- ensureDir
+- ensureFile
 
-##### Is ... ?
+#### Is ... ?
 
-```ts
-.exists
-.isDir, isEmptyDir
-.isFile
-.isSymbolicLink
-```
+- isDir
+- isEmptyDir
+- isFile
+- isSymbolicLink
+- exists
 
-##### List directory contents
+#### List directory contents
 
-```ts
-.readdir
-.ls(recursive?: boolean, followlinks?: boolean): Promise<{
-    dirs: PathNice[];
-    files: PathNice[];
-}>
-```
+- ls: 返回 `Promise<{ dirs: PathNice[], files: PathNice[] }>`, 已经区分目录与文件, 且均为绝对路径, 用起来更省心
+- readdir
 
-##### Watch
+#### Watch
 
-```ts
-.watch
-.watchFile
-```
+- watch
+- watchFile
+- unwatchFile
 
-##### Others
+#### Others
 
-```ts
-.stat
-.lstat
-.chmod
-.chown
-```
-
-#### 真实用例
-
-##### react-scripts/config/paths.js
-
-##### `path-nice` 的构建脚本
-
-这是这个库的构建脚本 (`scripts/build.js`), 它看上去不是很 nice (但毕竟我们不能令它自己构建自己):
-
-```js
-const path = require('path');
-const fs = require('fs');
-const concurrently = require('concurrently');
-
-const dirDist = path.resolve('./dist');
-
-build();
-async function build() {
-    // clean
-    fs.rmSync(dirDist, { recursive: true, force: true });
-
-    // tsc concurrently
-    // ...
-
-    // cjs/esm fixup
-    fs.writeFileSync(
-        path.join(dirDist, 'cjs/package.json'),
-        JSON.stringify({ type: 'commonjs' }, null, 4),
-        { encoding: 'utf-8' },
-    );
-    fs.writeFileSync(
-        path.join(dirDist, 'esm/package.json'),
-        JSON.stringify({ type: 'module' }, null, 4),
-        { encoding: 'utf-8' },
-    );
-}
-```
-
-如果用上 `path-nice` :
-
-```js
-const path = require('path-nice');
-const concurrently = require('concurrently');
-
-const dirDist = path('./dist');
-
-build();
-async function build() {
-    // clean
-    await dirDist.remove();
-
-    // tsc concurrently
-    // ...
-
-    // cjs/esm fixup
-    await dirDist.join('cjs/package.json').writeJSON({ type: 'commonjs' });
-    await dirDist.join('esm/package.json').writeJSON({ type: 'module' });
-}
-```
+- chmod
+- lchmod
+- chown
+- lchown
+- stat
+- lstat

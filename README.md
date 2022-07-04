@@ -6,7 +6,7 @@ English | [简体中文](README-cn.md)
 
 If sometimes you do not feel nice about `path` or `fs` of Node.js, then just
 
-![Add nice here](https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/add-nice-here.png)
+<img src="https://raw.githubusercontent.com/FuuuOverclocking/path-nice/main/docs/images/add-nice-here.png" width="500" />
 
 All existing code still works, while the `path` evolves.
 
@@ -14,23 +14,22 @@ All existing code still works, while the `path` evolves.
 
 ### One lib against `path` and `fs`, shortens the code considerably
 
-Original ver 👇
+Original ver:
 
 ```ts
 const src = path.resolve('./src');
-const filename = path.join(src, 'index.ts');
 await fs.promises.writeFile(
-    filename,
+    path.join(src, 'index.ts'),
     'export default 42;',
 );
 ```
 
-nice ver 👇
+nice ver:
 
 ```ts
 const src = path('./src').toAbsolute();
-const filename = src.join('index.ts');
-await filename.writeFile('export default 42;')
+await src.join('index.ts')
+         .writeFile('export default 42;');
 ```
 
 ### Informative comments, no need to go through docs, examples are all there
@@ -41,10 +40,10 @@ await filename.writeFile('export default 42;')
 
 ```ts
 import path from 'path-nice';
-import { fs } from 'memfs';
+import { fs as memfs } from 'memfs';
 
 const mpath = path
-    .posix          // Use POSIX-style paths
+    .posix          // Use POSIX-style paths (memfs only supports POSIX-style)
     .bindFS(memfs); // bind file system
 
 await mpath('/index.ts')
@@ -77,6 +76,8 @@ yarn add path-nice
 
 > ⚠️ The API of this library will be stable in version 2.0, do not use it in production until then.
 
+Here are some examples. For full usage, please refer to [API Reference](https://fuuuoverclocking.github.io/path-nice/interfaces/Path.html).
+
 Add a pair of `()` after `path` to enter "nice" mode.
 
 ```ts
@@ -84,178 +85,129 @@ import path from 'path-nice'
 
 const pkg = path('./package.json')
 
+// is the instance of PathNice
 pkg instanceof path.PathNice    // true
+
+// is an immutable object, all properties are read-only
 Object.isFrozen(pkg)            // true
+
+// A PathNice instance is a wrapper of the raw path string, so that the path
+// can be easily used to generate additional paths or manipulate files.
+pkg.raw                         // './package.json'
 ```
 
 ### Path related methods
 
+<p align="center"><img src="docs/images/path-parts.png" width="500" /></p>
+
 ```ts
-const a = path('path-nice/src')
+const f = path('path-nice/src/index.ts')
 
-a.raw                           // 'path-nice/src'
+// For the following 4 methods: 0 args = get, 1 arg = set
 
-a.join('index.ts')              // path('path-nice/src/index.ts')
+f.dirname()                     // path('path-nice/src')
+f.dirname('another-dir')        // path('another-dir/index.ts')
 
-a.dotdot or .parent             // 👇 Same to .dirname()
-a.dirname()                     // path('path-nice')
-a.dirname('/work')              // path('/work/src')
+f.filename()                    // 'index.ts'
+f.filename('types.ts')          // path('path-nice/src/types.ts')
 
-a.filename()                    // 'src'
-a.filename('docs')              // path('path-nice/docs')
+f.ext()                         // '.ts'
+f.ext('.js')                    // path('path-nice/src/index.js')
 
-const b = path('index.ts')
+f.separaotr()                   // '/'
+f.separaotr('\\')               // path('path-nice\\src\\index.ts')
 
-b.ext()                         // '.ts'
-b.ext('.js')                    // path('index.js')
-b.ext(null)                     // path('index')
+// .parent is an alias for .dirname(), return the path to the parent directory.
+f.parent.raw === f.dirname().raw // true
 
-const c = a.join(b)
+const f2 = f.parent.parent.join('package.json')
+f2.raw                          // 'path-nice/package.json'
 
-c.prefixFilename('old.')        // path('path-nice/src/old.index.ts')
-c.postfixBeforeExt('.old')      // path('path-nice/src/index.old.ts')
-c.postfix('.old')               // path('path-nice/src/index.ts.old')
+f2.prefixFilename('old.')       // path('path-nice/old.package.json')
+f2.postfixBeforeExt('.old')     // path('path-nice/package.old.json')
+f2.postfix('.old')              // path('path-nice/package.json.old')
 
-c.isAbsolute()                  // false
-c.toAbsolute()                  // path('/work/path-nice/src/index.ts'), suppose cwd is '/work'
-c.toRelative('path-nice/docs')  // path('../src/index.ts')
+f2.isAbsolute()                 // false
+f2.toAbsolute()                 // path('/work/path-nice/package.json'), suppose cwd is '/work'
+f2.toRelative('path-nice/docs') // path('../package.json')
+await f2.realpath()             // path('/work/path-nice/package.json'), suppose cwd is '/work',
+                                // and there are no symbolic links here.
 
-const d = c.toAbsolute().parse()
+const parsedF2 = f2.toAbsolute().parse()
 
-d.root()                        // '/'
-d.dir()                         // '/work/path-nice/src'
-d.base()                        // 'index.ts'
-d.name()                        // 'index'
-d.ext()                         // '.ts'
+// 0 args = get, 1 arg = set
 
-d.dir('/home/fuu').ext('.json').format()
-                                // path('/home/fuu/index.json')
+parsedF2.root()                 // '/'
+parsedF2.dir()                  // '/work/path-nice'
+parsedF2.base()                 // 'package.json'
+parsedF2.name()                 // 'package'
+parsedF2.ext()                  // '.json'
+
+parsedF2.dir('/home/fuu').ext('.md')
+    .format()                   // path('/home/fuu/package.md')
 ```
-
 
 ### File system related methods
 
-#### Promise ver
+#### Read and write
 
-##### Read and write
+- readFile: Read the file, return either a string or a Buffer, depending on whether the encoding is set
+- readString: Read the file, guaranteed to return a string, UTF-8 by default
+- readBuffer: Read the file, guaranteed to return a Buffer
+- readJSON
+- writeFile
+- writeJSON: UTF-8, 4 spaces indent by default
+- outputFile: = writeFile, automatically create the parent directory if it does not exist
+- outputJSON
+- updateString: e.g. `path('README.md').updateString(str => str.replace(/path/g, 'path-nice'))`
+- updateJSON: e.g. `path('package.json').updateJSON(json => { json.version = '1.0.0' })`
+- appendFile
+- createReadStream
+- createWriteStream
+- open
 
-```ts
-.readFile
-.readString
-.readBuffer
-.writeFile
-.writeJSON
-.updateString
-.updateJSON
-.appendFile
-.createReadStream
-.createWriteStream
-.open
-```
+#### Copy, move and remove
 
-##### Copy, move and remove
+- copyAs
+- copyToDir
+- moveAs
+- moveToDir
+- remove
+- rename
+- emptyDir
 
-```ts
-.copyTo
-.moveTo
-.rename
-.remove
-.emptyDir
-```
+#### Ensure
 
-##### Ensure
+Ensure the directory or file exists. If it doesn't, create it automatically.
 
-```ts
-.ensureDir
-.ensureFile
-```
+- emptyDir
+- ensureDir
+- ensureFile
 
-##### Is ... ?
+#### Is ... ?
 
-```ts
-.exists
-.isDir, isEmptyDir
-.isFile
-.isSymbolicLink
-```
+- isDir
+- isEmptyDir
+- isFile
+- isSymbolicLink
+- exists
 
-##### List directory contents
+#### List directory contents
 
-```ts
-.readdir
-.ls(recursive?: boolean, followlinks?: boolean): Promise<{
-    dirs: PathNice[];
-    files: PathNice[];
-}>
-```
+- ls: Returns `Promise<{ dirs: PathNice[], files: PathNice[] }>`, directories and files already sorted out, all absolute paths, easier to use
+- readdir
 
-##### Watch
+#### Watch
 
-```ts
-.watch
-.watchFile
-```
+- watch
+- watchFile
+- unwatchFile
 
-##### Others
+#### Others
 
-```ts
-.stat
-.chmod
-.chown
-```
-
-
-### Real Case
-
-This is the build script (`scripts/build.js`) of this library, which doesn't look nice (after all, we can't build it with itself) :
-
-```js
-const path = require('path');
-const fs = require('fs');
-const concurrently = require('concurrently');
-
-const dirDist = path.resolve('./dist');
-
-build();
-async function build() {
-    // clean
-    fs.rmSync(dirDist, { recursive: true, force: true });
-
-    // tsc concurrently
-    // ...
-
-    // cjs/esm fixup
-    fs.writeFileSync(
-        path.join(dirDist, 'cjs/package.json'),
-        JSON.stringify({ type: 'commonjs' }, null, 4),
-        { encoding: 'utf-8' },
-    );
-    fs.writeFileSync(
-        path.join(dirDist, 'esm/package.json'),
-        JSON.stringify({ type: 'module' }, null, 4),
-        { encoding: 'utf-8' },
-    );
-}
-```
-
-Use `path-nice` instead:
-
-```js
-const path = require('path-nice');
-const concurrently = require('concurrently');
-
-const dirDist = path('./dist');
-
-build();
-async function build() {
-    // clean
-    await dirDist.remove();
-
-    // tsc concurrently
-    // ...
-
-    // cjs/esm fixup
-    await dirDist.join('cjs/package.json').writeJSON({ type: 'commonjs' });
-    await dirDist.join('esm/package.json').writeJSON({ type: 'module' });
-}
-```
+- chmod
+- lchmod
+- chown
+- lchown
+- stat
+- lstat
