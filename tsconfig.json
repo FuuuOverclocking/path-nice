@@ -1,14 +1,4 @@
 // For editor only
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-        "module": "ES2020",
-        "outDir": "./build/esm"
-    },
-    "include": ["src/**/*"],
-    "exclude": [
-        "src/index.cjs.ts",
-        "src/posix.cjs.ts",
-        "src/win32.cjs.ts",
-    ]
+    "extends": "./tsconfig.esm.json"
 }
