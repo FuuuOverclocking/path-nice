@@ -1,25 +1,17 @@
-import { path, PathNice, ParsedPathNice } from './platform/path.js';
-import { pathPosix, PathNicePosix } from './posix/path.js';
-import { pathWin32, PathNiceWin32 } from './win32/path.js';
+import nodepath from 'path';
+import nodefs from 'fs';
+import { genPathWithCache } from './core/path.js';
 
-(path as any).posix = pathPosix;
-(path as any).win32 = pathWin32;
-(path as any).PathNice = PathNice;
-(path as any).PathNicePosix = PathNicePosix;
-(path as any).PathNiceWin32 = PathNiceWin32;
+export const path = genPathWithCache(nodepath, nodefs);
+export const pathPosix = genPathWithCache(nodepath.posix, nodefs);
+export const pathWin32 = genPathWithCache(nodepath.win32, nodefs);
 
-(pathPosix as any).posix = pathPosix;
-(pathPosix as any).win32 = pathWin32;
-(pathPosix as any).PathNice = PathNice;
-(pathPosix as any).PathNicePosix = PathNicePosix;
-(pathPosix as any).PathNiceWin32 = PathNiceWin32;
-
-(pathWin32 as any).posix = pathPosix;
-(pathWin32 as any).win32 = pathWin32;
-(pathWin32 as any).PathNice = PathNice;
-(pathWin32 as any).PathNicePosix = PathNicePosix;
-(pathWin32 as any).PathNiceWin32 = PathNiceWin32;
-
-export { path, PathNice, ParsedPathNice };
-export { pathPosix, PathNicePosix };
-export { pathWin32, PathNiceWin32 };
+export type {
+    PathNice,
+    PathNiceArr,
+    ParsedPathNice,
+    FileSystem,
+    PlatformPath,
+    ParsedPath,
+    FormatInputPathObject,
+} from './core/types.js';

@@ -18,7 +18,7 @@ async function main() {
     await Promise.all([fixPath('docs/index.html'), fixPath('docs/index-cn.html')]);
 
     async function fixPath(filepath) {
-        await path(filepath).updateString((str) => {
+        await path(filepath).updateFileAsString((str) => {
             str = str.replace('<a href="README-cn.md">', '<a href="index-cn.html">');
             str = str.replace('<a href="README.md">', '<a href="index.html">');
             return str;

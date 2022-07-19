@@ -1,4 +1,4 @@
-import type { FileSystem } from './types.js';
+import type { FileSystem } from '../types.js';
 
 export async function remove(
     fs: FileSystem,
@@ -18,4 +18,21 @@ export async function remove(
     }
 
     await unlink(target);
+}
+
+export function removeSync(fs: FileSystem, target: string): void {
+    if ((fs as any).rm) {
+        return fs.rmSync(target, { recursive: true, force: true });
+    }
+
+    const { lstatSync, rmdirSync, unlinkSync } = fs;
+
+    const stats = lstatSync(target);
+
+    if (stats.isDirectory()) {
+        rmdirSync(target, { recursive: true });
+        return;
+    }
+
+    unlinkSync(target);
 }

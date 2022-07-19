@@ -8,46 +8,57 @@ async function main() {
 
     console.log('release: v' + version);
 
-    if ((await x('git branch --show-current')) !== 'dev') {
-        console.log(`x('git branch --show-current') !== 'dev'`);
-        return;
-    }
+    // // at dev branch
+    // if ((await x('git branch --show-current')) !== 'dev') {
+    //     console.log(`x('git branch --show-current') !== 'dev'`);
+    //     return;
+    // }
 
-    if ((await x('git status --porcelain')) !== '') {
-        console.log(`x('git status --porcelain') !== ''`);
-        return;
-    }
+    // // working tree is clean
+    // if ((await x('git status --porcelain')) !== '') {
+    //     console.log(`x('git status --porcelain') !== ''`);
+    //     return;
+    // }
 
-    await sh('git rebase -i main');
-    await sh('git checkout main');
-    await sh('git merge dev');
+    // // rebase & merge
+    // await sh('git rebase -i main');
+    // await sh('git checkout main');
+    // await sh('git merge dev');
 
+    // build & test
     await fs.remove('./build');
     await sh('tsc -p tsconfig.cjs.json');
     await sh('tsc -p tsconfig.esm.json');
-    await sh('jest');
+    // await sh('jest');
 
+    // we can use path-nice now
     const path = require('../build/cjs/index.cjs.js');
 
     await path('package.json').updateJSON((pkg) => {
         pkg.version = version;
     });
+    // generate release/
     await genRelease();
+    // generate docs/
     await sh('yarn docs');
+    // generate CHANGLOG.md
     await sh('conventional-changelog -p angular -i CHANGELOG.md -s');
 
-    await sh('git add -A');
-    await sh(`git commit -m "chore: release ${version}"`);
-    await sh('git checkout dev');
-    await sh('git merge main');
-    await sh('git push --all');
-    await sh(`git tag v${version}`);
-    await sh(`git push origin v${version}`);
+    // // commit, back to dev branch, tag
+    // await sh('git add -A');
+    // await sh(`git commit -m "chore: release ${version}"`);
+    // await sh(`git tag v${version}`);
+    // await sh('git checkout dev');
+    // await sh('git merge main');
 
-    console.log(chalk.red(`Critical operation:`));
-    console.log(chalk.red(`  $ npm publish --dry-run ./release`));
-    console.log(chalk.red(`  $ npm publish ./release`));
-    console.log(chalk.red(`Copy the command and execute it yourself.`));
+    // // sync
+    // await sh('git push --all');
+    // await sh(`git push origin v${version}`);
+
+    // console.log(chalk.red(`Critical operation:`));
+    // console.log(chalk.red(`  $ npm publish --dry-run ./release`));
+    // console.log(chalk.red(`  $ npm publish ./release`));
+    // console.log(chalk.red(`Copy the command and execute it yourself.`));
 }
 
 function getInput() {
@@ -75,23 +86,25 @@ function getInput() {
 async function genRelease() {
     const path = require('../build/cjs/index.cjs.js');
 
-    await path('release').remove();
-    await path('release').ensureDir();
+    await path('release').emptyDir();
 
     await Promise.all([
-        path('build/cjs')
-            .copyToDir('release')
-            .then(() => path('release/cjs/package.json').writeJSON({ type: 'commonjs' })),
-        path('build/esm')
-            .copyToDir('release')
-            .then(() => path('release/esm/package.json').writeJSON({ type: 'module' })),
+        path(
+            'build/cjs',
+            'build/esm',
+            'package.json',
+            'README.md',
+            'README-cn.md',
+            'LICENSE',
+        ).copyToDir('release'),
         path('release/posix/package.json').outputJSON(genSubPkgJSON('posix')),
         path('release/win32/package.json').outputJSON(genSubPkgJSON('win32')),
-        path('package.json')
-            .copyToDir('release')
-            .then(() => path('release/package.json').updateJSON(updatePkgJSON)),
-        path('README.md').copyToDir('release'),
-        path('LICENSE').copyToDir('release'),
+    ]);
+
+    await Promise.all([
+        path('release/cjs/package.json').writeJSON({ type: 'commonjs' }),
+        path('release/esm/package.json').writeJSON({ type: 'module' }),
+        path('release/package.json').updateJSON(updatePkgJSON),
     ]);
 
     /**
@@ -145,7 +158,7 @@ async function genRelease() {
                     require: './cjs/win32.cjs.js',
                 },
             },
-            files: ['cjs/', 'esm/', 'posix/', 'win32/'],
+            files: ['cjs/', 'esm/', 'posix/', 'win32/', 'README-cn.md'],
         };
     }
 }

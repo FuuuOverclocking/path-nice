@@ -72,7 +72,7 @@ yarn add path-nice
 - Provided: CommonJS, ESModule and TypeScript typings
 - ESModule version can be [used directly in Node](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
 
-## Usage
+## 3 minutes guide
 
 > ⚠️ The API of this library will be stable in version 2.0, do not use it in production until then.
 
@@ -85,15 +85,15 @@ import path from 'path-nice'
 
 const pkg = path('./package.json')
 
+// A PathNice instance is a wrapper of the raw path string, so that the path
+// can be easily used to generate additional paths or manipulate files.
+pkg.raw === './package.json'    // true
+
 // is the instance of PathNice
 pkg instanceof path.PathNice    // true
 
 // is an immutable object, all properties are read-only
 Object.isFrozen(pkg)            // true
-
-// A PathNice instance is a wrapper of the raw path string, so that the path
-// can be easily used to generate additional paths or manipulate files.
-pkg.raw                         // './package.json'
 ```
 
 ### Path related methods
@@ -132,6 +132,7 @@ f2.toAbsolute()                 // path('/work/path-nice/package.json'), suppose
 f2.toRelative('path-nice/docs') // path('../package.json')
 await f2.realpath()             // path('/work/path-nice/package.json'), suppose cwd is '/work',
                                 // and there are no symbolic links here.
+f2.realpathSync()               // Sync ver
 
 const parsedF2 = f2.toAbsolute().parse()
 
@@ -149,18 +150,39 @@ parsedF2.dir('/home/fuu').ext('.md')
 
 ### File system related methods
 
+It can be noted that, the functions in the `fs` module, such as `readFile` and `writeFile`,
+almost always have `path` as their first parameter, so it could be more convenient to call
+these functions if we rewrite them into the form of member functions of path class.
+
+Most of the following methods return a `Promise`, and they also have a synchronized version,
+with the `Sync` suffix added to the function name.
+
 #### Read and write
 
-- readFile: Read the file, return either a string or a Buffer, depending on whether the encoding is set
-- readString: Read the file, guaranteed to return a string, UTF-8 by default
-- readBuffer: Read the file, guaranteed to return a Buffer
-- readJSON
+- readFile
+- readString: = readFile, but guaranteed to return a string, UTF-8 by default
+- readBuffer: = readFile, but guaranteed to return a Buffer
+- readJSON: read the file, then parse as json
 - writeFile
 - writeJSON: UTF-8, 4 spaces indent by default
 - outputFile: = writeFile, automatically create the parent directory if it does not exist
 - outputJSON
-- updateString: e.g. `path('README.md').updateString(str => str.replace(/path/g, 'path-nice'))`
-- updateJSON: e.g. `path('package.json').updateJSON(json => { json.version = '1.0.0' })`
+- updateString
+  
+  e.g.
+
+  ```ts
+  path('README.md')
+      .updateString(str => str.replace(/path/g, 'path-nice'))
+  ```
+- updateJSON
+  
+  e.g.
+  
+  ```ts
+  path('package.json')
+      .updateJSON(json => { json.version = '1.0.0' })
+  ```
 - appendFile
 - createReadStream
 - createWriteStream
@@ -168,8 +190,10 @@ parsedF2.dir('/home/fuu').ext('.md')
 
 #### Copy, move and remove
 
-- copyAs
-- copyToDir
+Directories can also be directly copied and moved for deletion. Support for moving files across devices.
+
+- copyAs: copy **as** ...
+- copyToDir: copy **into** a directory
 - moveAs
 - moveToDir
 - remove

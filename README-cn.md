@@ -72,7 +72,7 @@ yarn add path-nice
 - 提供: CommonJS, ESModule 和 TypeScript typings
 - ESModule 版本可以[直接在 Node 中使用](https://nodejs.org/api/esm.html#modules-ecmascript-modules).
 
-## 用法
+## 3 分钟教程
 
 > ⚠️ 这个库的 API 将在 2.0 版达到稳定, 在此之前请勿在生产中使用.
 
@@ -85,15 +85,15 @@ import path from 'path-nice'
 
 const pkg = path('./package.json')
 
+// 一个 PathNice 实例是对 raw path string 的包装,
+// 用于方便地生成其他路径, 或操作文件
+pkg.raw === './package.json'    // true
+
 // 是 PathNice 的实例
 pkg instanceof path.PathNice    // true
 
 // 是一个不可变对象, 所有属性是只读的
 Object.isFrozen(pkg)            // true
-
-// 一个 PathNice 实例是对 raw path string 的包装,
-// 用于方便地生成其他路径, 或操作文件
-pkg.raw                         // './package.json'
 ```
 
 ### Path 相关方法
@@ -132,6 +132,7 @@ f2.toAbsolute()                 // path('/work/path-nice/package.json'), suppose
 f2.toRelative('path-nice/docs') // path('../package.json')
 await f2.realpath()             // path('/work/path-nice/package.json'), suppose cwd is '/work',
                                 // and there are no symbolic links here.
+f2.realpathSync()               // Sync ver
 
 const parsedF2 = f2.toAbsolute().parse()
 
@@ -149,18 +150,37 @@ parsedF2.dir('/home/fuu').ext('.md')
 
 ### 文件系统相关方法
 
+可以注意到, `fs` 模块中的函数, 例如 `readFile` 和 `writeFile`, 它们的第一个参数几乎都是 `path`, 如果
+将它们改写成路径类的成员方法, 调用起来能够更加方便快捷.
+
+下面大多数方法返回一个 `Promise`. 在函数名加上后缀 `Sync`, 即为它们的同步版本.
+
 #### Read and write
 
-- readFile: 读取文件, 返回 string 或 Buffer, 返回哪个取决于是否设置编码
-- readString: 读取文件, 保证返回 string, 默认 UTF-8
-- readBuffer: 读取文件, 保证返回 Buffer
-- readJSON
+- readFile
+- readString: 等同于 readFile, 但保证返回 string, 默认 UTF-8
+- readBuffer: 等同于 readFile, 但保证返回 Buffer
+- readJSON: 读取文件, 再作为 json 解析
 - writeFile
 - writeJSON: 默认 UTF-8, 4 个空格缩进
 - outputFile: 等同于 writeFile, 但如果文件目录不存在, 自动创建
 - outputJSON
-- updateString: 例如 `path('README.md').updateString(str => str.replace(/path/g, 'path-nice'))`
-- updateJSON: 例如 `path('package.json').updateJSON(json => { json.version = '1.0.0' })`
+- updateString
+  
+  例如:
+
+  ```ts
+  path('README.md')
+      .updateString(str => str.replace(/path/g, 'path-nice'))
+  ```
+- updateJSON
+  
+  例如:
+  
+  ```ts
+  path('package.json')
+      .updateJSON(json => { json.version = '1.0.0' })
+  ```
 - appendFile
 - createReadStream
 - createWriteStream
@@ -168,8 +188,10 @@ parsedF2.dir('/home/fuu').ext('.md')
 
 #### Copy, move and remove
 
-- copyAs
-- copyToDir
+文件夹也可直接复制移动删除. 支持跨设备移动文件.
+
+- copyAs: 复制为 ...
+- copyToDir: 复制到文件夹内
 - moveAs
 - moveToDir
 - remove

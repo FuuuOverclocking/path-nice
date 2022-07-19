@@ -28,20 +28,23 @@
         "docs": "node ./scripts/gen-docs.js",
         "release": "node ./scripts/release.js"
     },
+    "dependencies": {
+        "@types/node": "^16",
+        "chokidar": "^3.5.3"
+    },
     "devDependencies": {
         "@types/fs-extra": "^9.0.13",
         "@types/jest": "^28.1.4",
-        "@types/node": "^12.12.6",
         "chalk": "^4.1.2",
         "commitizen": "^4.2.4",
         "conventional-changelog-cli": "^2.2.2",
         "cz-conventional-changelog": "3.3.0",
         "fs-extra": "^10.1.0",
         "jest": "^28.1.2",
-        "memfs": "^3.4.6",
+        "memfs": "^3.4.7",
         "prettier": "^2.7.1",
         "ts-jest": "^28.0.5",
-        "typedoc": "^0.22.18",
+        "typedoc": "^0.23.5",
         "typescript": "^4.7.4"
     },
     "sideEffects": false,

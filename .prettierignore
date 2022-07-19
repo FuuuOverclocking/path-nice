@@ -1,6 +1,6 @@
 .github/
 
-type-gymnastics.ts
+type-gymnastics/
 
 /tsconfig.base.json
 /tsconfig.cjs.json
