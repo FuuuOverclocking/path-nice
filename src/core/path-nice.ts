@@ -300,6 +300,8 @@ export interface PathNice<T = unknown> {
      * absolute paths, and we need to derive the relative path from one to the other.
      * This is actually the reverse transform of path.resolve.
      *
+     * The default value of `relativeTo` is current working directory.
+     *
      * @example
      * ```ts
      * $ path('./src/index.ts').toAbsolute().toRelative('./')
@@ -315,7 +317,7 @@ export interface PathNice<T = unknown> {
      *
      * @category Path related
      */
-    toRelative(relativeTo: string | PathNice): PathNice;
+    toRelative(relativeTo?: string | PathNice): PathNice;
 
     /**
      * Asynchronously computes the canonical pathname by resolving `.`, `..`, and symbolic
@@ -1220,6 +1222,24 @@ export interface PathNice<T = unknown> {
      * @category Copy, move and remove Sync
      */
     removeSync(): PathNice;
+
+    /**
+     * Asynchronously removes a file or directory. The directory can have contents. If the
+     * path does not exist, silently does nothing.
+     * @returns original path wrapped in Promise<PathNice>
+     *
+     * @category Copy, move and remove
+     */
+    delete(): Promise<PathNice>;
+
+    /**
+     * Synchronously removes a file or directory. The directory can have contents. If the
+     * path does not exist, silently does nothing.
+     * @returns original path wrapped in Promise<PathNice>
+     *
+     * @category Copy, move and remove Sync
+     */
+    deleteSync(): PathNice;
 
     /**
      * Asynchronously ensures that a directory is empty. Deletes directory contents if the

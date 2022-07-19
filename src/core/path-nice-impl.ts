@@ -49,7 +49,9 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             if (path instanceof PathNice) return path;
 
             if (!path || typeof (path as any).raw !== 'string') {
-                throw new Error('[path-nice]: a string or a PathNice object is expected.');
+                throw new Error(
+                    '[path-nice]: a string or a PathNice object is expected.',
+                );
             }
             checkCompatibility({ lowpath, fs }, path);
             return new PathNice((path as any).raw);
@@ -190,8 +192,12 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             return n(lowpath.resolve(basePath, this.raw));
         }
 
-        toRelative(relativeTo: string | PathNice): PathNice {
-            relativeTo = extract(relativeTo);
+        toRelative(relativeTo?: string | PathNice): PathNice {
+            if (relativeTo) {
+                relativeTo = extract(relativeTo);
+            } else {
+                relativeTo = process.cwd();
+            }
             return n(lowpath.relative(relativeTo, this.raw));
         }
 
@@ -417,6 +423,16 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         }
 
         removeSync(): PathNice {
+            removeSync(fs, this.raw);
+            return this;
+        }
+
+        async delete(): Promise<PathNice> {
+            await remove(fs, this.raw);
+            return this;
+        }
+
+        deleteSync(): PathNice {
             removeSync(fs, this.raw);
             return this;
         }
@@ -828,6 +844,16 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         }
 
         removeSync(): PathNiceArr {
+            this.forEach((p) => p.removeSync());
+            return this;
+        }
+
+        async delete(): Promise<PathNiceArr> {
+            await Promise.all([this.map((p) => p.remove())]);
+            return this;
+        }
+
+        deleteSync(): PathNiceArr {
             this.forEach((p) => p.removeSync());
             return this;
         }
