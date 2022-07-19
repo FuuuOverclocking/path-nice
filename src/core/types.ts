@@ -10,7 +10,61 @@ export type FileSystem = typeof nodefs;
 export type PathFn = typeof path;
 
 /**
- * Emmmm
+ * Get a new instance of `PathNice` or `PathNiceArr`.
+ *
+ * If the argurment is a string or a `PathNice`, a `PathNice` is returned. A `PathNice`
+ * instance is a wrapper of the raw path string, so that the path can be easily used to
+ * generate additional paths or manipulate files.
+ *
+ * If there are more than 1 arguments or the only argument is an `Array`, a `PathNiceArr`
+ * is returned. The class `PathNiceArr` extends the base class `Array`, adding methods for
+ * copying, moving, removing, watching files in a holistic manner.
+ *
+ * For details, please refer to the documents of [PathNice]()
+ * and [PathNiceArr]().
+ *
+ * @example
+ *
+ * Get a PathNice instance:
+ *
+ * ```ts
+ * $ let src: PathNice = path('./src')
+ * ```
+ *
+ * Get the raw path string from PathNice:
+ *
+ * ```ts
+ * $ src.raw
+ * './src'
+ * ```
+ *
+ * Use `src` to generate another path:
+ *
+ * ```ts
+ * $ src.join('index.ts')
+ * PathNice { raw: 'src/index.ts' }  // on POSIX
+ * PathNice { raw: 'src\\index.ts' } // on Windows
+ * ```
+ *
+ * Use `src` to write a file:
+ *
+ * ```ts
+ * $ src.join('index.ts').writeFile('export default 42;')
+ * Promise { <pending> ... }
+ * ```
+ *
+ * Get a PathNiceArr instance:
+ *
+ * ```ts
+ * let arr = path('./README.md', './package.json', './tsconfig.json');
+ * ```
+ *
+ * Filter json files from the array and copy to another folder:
+ * 
+ * ```ts
+ * arr.filter(f => f.ext() === '.json')
+ *    .copyToDir('./config')
+ * ```
  */
 export declare function path<T extends string>(path: T): PathNice<T>;
 export declare function path<T extends string>(path: PathNice<T>): PathNice<T>;
@@ -19,7 +73,9 @@ export declare function path(
     path_1: string | PathNice,
     ...paths_rest: (string | PathNice)[]
 ): PathNiceArr;
-export declare function path(paths: Array<string | PathNice> | PathNiceArr): PathNiceArr;
+export declare function path(
+    paths: ReadonlyArray<string | PathNice> | PathNiceArr,
+): PathNiceArr;
 
 export declare namespace path {
     /**
