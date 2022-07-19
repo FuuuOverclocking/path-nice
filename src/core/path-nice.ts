@@ -2089,3 +2089,57 @@ export interface ParsedPathNice {
     name(): string;
     name(newName: string): this;
 }
+
+export interface PathNiceArr {
+    /**
+     * Combines two or more arrays.
+     * This method returns a new array without modifying any existing arrays.
+     * @param items Additional arrays and/or items to add to the end of the array.
+     */
+    concat(...items: ConcatArray<PathNice>[]): PathNiceArr;
+    /**
+     * Combines two or more arrays.
+     * This method returns a new array without modifying any existing arrays.
+     * @param items Additional arrays and/or items to add to the end of the array.
+     */
+    concat(...items: (PathNice | ConcatArray<PathNice>)[]): PathNiceArr;
+    /**
+     * Reverses the elements in an array in place.
+     * This method mutates the array and returns a reference to the same array.
+     */
+    reverse(): PathNiceArr;
+    /**
+     * Returns a copy of a section of an array.
+     * For both start and end, a negative index can be used to indicate an offset from the end of the array.
+     * For example, -2 refers to the second to last element of the array.
+     * @param start The beginning index of the specified portion of the array.
+     * If start is undefined, then the slice begins at index 0.
+     * @param end The end index of the specified portion of the array. This is exclusive of the element at the index 'end'.
+     * If end is undefined, then the slice extends to the end of the array.
+     */
+    slice(start?: number, end?: number): PathNiceArr;
+    /**
+     * Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
+     * @param start The zero-based location in the array from which to start removing elements.
+     * @param deleteCount The number of elements to remove.
+     * @returns An array containing the elements that were deleted.
+     */
+    splice(start: number, deleteCount?: number): PathNiceArr;
+    /**
+     * Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
+     * @param start The zero-based location in the array from which to start removing elements.
+     * @param deleteCount The number of elements to remove.
+     * @param items Elements to insert into the array in place of the deleted elements.
+     * @returns An array containing the elements that were deleted.
+     */
+    splice(start: number, deleteCount: number, ...items: PathNice[]): PathNiceArr;
+    /**
+     * Returns the elements of an array that meet the condition specified in a callback function.
+     * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array.
+     * @param thisArg An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.
+     */
+    filter(
+        predicate: (value: PathNice, index: number, array: PathNice[]) => unknown,
+        thisArg?: any,
+    ): PathNiceArr;
+}
