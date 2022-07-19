@@ -1,13 +1,26 @@
 import nodepath from 'path';
 import path from '../build/cjs/index.cjs.js';
 
-test('member variables are equal to the original', () => {
-    expect(path.sep).toBe(nodepath.sep);
-    expect(path.delimiter).toBe(nodepath.delimiter);
+test('props are equal to the original', () => {
+    [
+        [path, nodepath],
+        [path.posix, nodepath.posix],
+        [path.win32, nodepath.win32],
+    ].forEach(([path, nodepath]) => {
+        expect(path.sep).toBe(nodepath.sep);
+        expect(path.delimiter).toBe(nodepath.delimiter);
 
-    expect(path.posix.sep).toBe(nodepath.posix.sep);
-    expect(path.posix.delimiter).toBe(nodepath.posix.delimiter);
-
-    expect(path.win32.sep).toBe(nodepath.win32.sep);
-    expect(path.win32.delimiter).toBe(nodepath.win32.delimiter);
+        // functions of nodepath do not depend on `this`
+        expect(path.basename).toBe(nodepath.basename);
+        expect(path.dirname).toBe(nodepath.dirname);
+        expect(path.extname).toBe(nodepath.extname);
+        expect(path.format).toBe(nodepath.format);
+        expect(path.isAbsolute).toBe(nodepath.isAbsolute);
+        expect(path.join).toBe(nodepath.join);
+        expect(path.normalize).toBe(nodepath.normalize);
+        expect(path.parse).toBe(nodepath.parse);
+        expect(path.relative).toBe(nodepath.relative);
+        expect(path.resolve).toBe(nodepath.resolve);
+        expect(path.toNamespacedPath).toBe(nodepath.toNamespacedPath);
+    });
 });
