@@ -57,14 +57,14 @@ export async function ensureFile(
             });
         } else {
             throw new Error(
-                `[path-nice] ensureFile(): ${dirname} already exists and is not a directory.`,
+                `[path-nice] .ensureFile(): ${dirname} already exists and is not a directory.`,
             );
         }
     }
 
     if (stats.isFile()) return;
     throw new Error(
-        '[path-nice] ensureFile(): the path already exists and is not a file.',
+        '[path-nice] .ensureFile(): the path already exists and is not a file.',
     );
 }
 
@@ -97,7 +97,7 @@ export function ensureFileSync(
             fs.writeFileSync(target, '', { encoding: 'utf-8', mode: options?.fileMode });
         } else {
             throw new Error(
-                `[path-nice] ensureFileSync(): ${dirname} already exists and is not ` +
+                `[path-nice] .ensureFileSync(): ${dirname} already exists and is not ` +
                     `a directory.`,
             );
         }
@@ -105,6 +105,6 @@ export function ensureFileSync(
 
     if (stats.isFile()) return;
     throw new Error(
-        '[path-nice] ensureFileSync(): the path already exists and is not a file.',
+        '[path-nice] .ensureFileSync(): the path already exists and is not a file.',
     );
 }

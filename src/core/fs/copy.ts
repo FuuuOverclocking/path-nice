@@ -71,17 +71,17 @@ export async function copy(
         const { 0: srcStat, 1: destStat } = await getStats(src, dest, options);
         if (destStat) {
             if (areIdentical(srcStat, destStat)) {
-                throw new Error(`[path-nice] copy(): src and dest cannot be the same`);
+                throw new Error(`[path-nice] .copy(): src and dest cannot be the same`);
             }
             if (srcStat.isDirectory() && !destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] copy(): cannot overwrite directory ${src} ` +
+                    `[path-nice] .copy(): cannot overwrite directory ${src} ` +
                         `with non-directory ${dest}`,
                 );
             }
             if (!srcStat.isDirectory() && destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] copy(): cannot overwrite non-directory ${src} ` +
+                    `[path-nice] .copy(): cannot overwrite non-directory ${src} ` +
                         `with directory ${dest}`,
                 );
             }
@@ -89,7 +89,7 @@ export async function copy(
 
         if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
             throw new Error(
-                `[path-nice] copy(): cannot copy ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .copy(): cannot copy ${src} to a subdirectory of self ${dest}`,
             );
         }
         return { srcStat, destStat };
@@ -164,7 +164,7 @@ export async function copy(
         }
         if (areIdentical(srcStat, destStat)) {
             throw new Error(
-                `[path-nice] copy(): cannot copy ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .copy(): cannot copy ${src} to a subdirectory of self ${dest}`,
             );
         }
         return checkParentPaths(src, srcStat, destParent);
@@ -212,7 +212,7 @@ export async function copy(
         if (srcStat.isDirectory() && options.recursive) {
             return onDir(srcStat, destStat, src, dest, options);
         } else if (srcStat.isDirectory()) {
-            throw new Error(`[path-nice] copy(): ${src} is a directory (not copied)`);
+            throw new Error(`[path-nice] .copy(): ${src} is a directory (not copied)`);
         } else if (
             srcStat.isFile() ||
             srcStat.isCharacterDevice() ||
@@ -222,11 +222,11 @@ export async function copy(
         } else if (srcStat.isSymbolicLink()) {
             return onLink(destStat, src, dest, options);
         } else if (srcStat.isSocket()) {
-            throw new Error(`[path-nice] copy(): cannot copy a socket file: ${dest}`);
+            throw new Error(`[path-nice] .copy(): cannot copy a socket file: ${dest}`);
         } else if (srcStat.isFIFO()) {
-            throw new Error(`[path-nice] copy(): cannot copy a FIFO pipe: ${dest}`);
+            throw new Error(`[path-nice] .copy(): cannot copy a FIFO pipe: ${dest}`);
         }
-        throw new Error(`[path-nice] copy(): cannot copy an unknown file type: ${dest}`);
+        throw new Error(`[path-nice] .copy(): cannot copy an unknown file type: ${dest}`);
     }
 
     function onFile(srcStat: any, destStat: any, src: any, dest: any, options: any) {
@@ -239,7 +239,7 @@ export async function copy(
             await unlink(dest);
             return _copyFile(srcStat, src, dest, options);
         } else if (options.errorOnExist) {
-            throw new Error(`[path-nice] copy(): ${dest} already exists`);
+            throw new Error(`[path-nice] .copy(): ${dest} already exists`);
         }
     }
 
@@ -334,7 +334,7 @@ export async function copy(
         }
         if (isSrcSubdir(resolvedSrc, resolvedDest)) {
             throw new Error(
-                `[path-nice] copy(): cannot copy ${resolvedSrc} to a subdirectory of self ` +
+                `[path-nice] .copy(): cannot copy ${resolvedSrc} to a subdirectory of self ` +
                     `${resolvedDest}`,
             );
         }
@@ -344,7 +344,7 @@ export async function copy(
         const srcStat = await stat(src);
         if (srcStat.isDirectory() && isSrcSubdir(resolvedDest, resolvedSrc)) {
             throw new Error(
-                `[path-nice] copy(): cannot overwrite ${resolvedDest} with ${resolvedSrc}`,
+                `[path-nice] .copy(): cannot overwrite ${resolvedDest} with ${resolvedSrc}`,
             );
         }
         return copyLink(resolvedSrc, dest);
@@ -399,18 +399,18 @@ export function copySync(
         if (destStat) {
             if (areIdentical(srcStat, destStat)) {
                 throw new Error(
-                    `[path-nice] copySync(): src and dest cannot be the same`,
+                    `[path-nice] .copySync(): src and dest cannot be the same`,
                 );
             }
             if (srcStat.isDirectory() && !destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] copySync(): cannot overwrite directory ${src} ` +
+                    `[path-nice] .copySync(): cannot overwrite directory ${src} ` +
                         `with non-directory ${dest}`,
                 );
             }
             if (!srcStat.isDirectory() && destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] copySync(): cannot overwrite non-directory ${src} ` +
+                    `[path-nice] .copySync(): cannot overwrite non-directory ${src} ` +
                         `with directory ${dest}`,
                 );
             }
@@ -418,7 +418,7 @@ export function copySync(
 
         if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
             throw new Error(
-                `[path-nice] copySync(): cannot copy ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .copySync(): cannot copy ${src} to a subdirectory of self ${dest}`,
             );
         }
         return { srcStat, destStat };
@@ -495,7 +495,7 @@ export function copySync(
         }
         if (areIdentical(srcStat, destStat)) {
             throw new Error(
-                `[path-nice] copySync(): cannot copy ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .copySync(): cannot copy ${src} to a subdirectory of self ${dest}`,
             );
         }
         return checkParentPaths(src, srcStat, destParent);
@@ -543,7 +543,7 @@ export function copySync(
         if (srcStat.isDirectory() && options.recursive) {
             return onDir(srcStat, destStat, src, dest, options);
         } else if (srcStat.isDirectory()) {
-            throw new Error(`[path-nice] copySync(): ${src} is a directory (not copied)`);
+            throw new Error(`[path-nice] .copySync(): ${src} is a directory (not copied)`);
         } else if (
             srcStat.isFile() ||
             srcStat.isCharacterDevice() ||
@@ -553,12 +553,12 @@ export function copySync(
         } else if (srcStat.isSymbolicLink()) {
             return onLink(destStat, src, dest, options);
         } else if (srcStat.isSocket()) {
-            throw new Error(`[path-nice] copySync(): cannot copy a socket file: ${dest}`);
+            throw new Error(`[path-nice] .copySync(): cannot copy a socket file: ${dest}`);
         } else if (srcStat.isFIFO()) {
-            throw new Error(`[path-nice] copySync(): cannot copy a FIFO pipe: ${dest}`);
+            throw new Error(`[path-nice] .copySync(): cannot copy a FIFO pipe: ${dest}`);
         }
         throw new Error(
-            `[path-nice] copySync(): cannot copy an unknown file type: ${dest}`,
+            `[path-nice] .copySync(): cannot copy an unknown file type: ${dest}`,
         );
     }
 
@@ -572,7 +572,7 @@ export function copySync(
             unlinkSync(dest);
             return _copyFile(srcStat, src, dest, options);
         } else if (options.errorOnExist) {
-            throw new Error(`[path-nice] copySync(): ${dest} already exists`);
+            throw new Error(`[path-nice] .copySync(): ${dest} already exists`);
         }
     }
 
@@ -667,7 +667,7 @@ export function copySync(
         }
         if (isSrcSubdir(resolvedSrc, resolvedDest)) {
             throw new Error(
-                `[path-nice] copySync(): cannot copy ${resolvedSrc} to a subdirectory ` +
+                `[path-nice] .copySync(): cannot copy ${resolvedSrc} to a subdirectory ` +
                     `of self ${resolvedDest}`,
             );
         }
@@ -677,7 +677,7 @@ export function copySync(
         const srcStat = statSync(src);
         if (srcStat.isDirectory() && isSrcSubdir(resolvedDest, resolvedSrc)) {
             throw new Error(
-                `[path-nice] copySync(): cannot overwrite ${resolvedDest} with ${resolvedSrc}`,
+                `[path-nice] .copySync(): cannot overwrite ${resolvedDest} with ${resolvedSrc}`,
             );
         }
         return copyLink(resolvedSrc, dest);

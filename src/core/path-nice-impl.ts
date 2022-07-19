@@ -22,7 +22,9 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         if (typeof p === 'string') return p;
         if (p instanceof PathNice) return p.raw;
         if (!p || typeof (p as any).raw !== 'string') {
-            throw new Error();
+            throw new Error(
+                `[path-nice]: \`${String(p)}\` is not a string or a PathNice object.`,
+            );
         }
         checkCompatibility({ lowpath, fs }, p);
         return (p as any).raw;
@@ -47,7 +49,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             if (path instanceof PathNice) return path;
 
             if (!path || typeof (path as any).raw !== 'string') {
-                throw new Error();
+                throw new Error('[path-nice]: a string or a PathNice object is expected.');
             }
             checkCompatibility({ lowpath, fs }, path);
             return new PathNice((path as any).raw);
@@ -62,7 +64,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         // ===============================================================================
 
         join(...paths: Array<string | PathNice>): PathNice {
-            const _paths = paths.map((p) => (typeof p === 'string' ? p : p.raw));
+            const _paths = paths.map((p) => extract(p));
             return n(lowpath.join(this.raw, ..._paths));
         }
 
@@ -75,7 +77,8 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 case 'string':
                     return n(lowpath.join(newDirname, lowpath.basename(this.raw)));
                 case 'object':
-                    return n(lowpath.join(newDirname.raw, lowpath.basename(this.raw)));
+                    newDirname = extract(newDirname);
+                    return n(lowpath.join(newDirname, lowpath.basename(this.raw)));
                 case 'function':
                     return this.dirname(newDirname(lowpath.dirname(this.raw)));
             }
@@ -122,7 +125,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         }
 
         separator(forceSep?: '/' | '\\'): '/' | '\\' | 'none' | 'hybrid' | PathNice {
-            const regReplaceSep = lowpath.sep === '/' ? /\//g : /\\/g;
+            const regReplaceSep = /[\/\\]/g;
 
             if (forceSep) return n(this.raw.replace(regReplaceSep, forceSep));
             if (this.raw.indexOf('/') !== -1) {
@@ -188,10 +191,8 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         }
 
         toRelative(relativeTo: string | PathNice): PathNice {
-            if (typeof relativeTo === 'string') {
-                return n(lowpath.relative(relativeTo, this.raw));
-            }
-            return n(lowpath.relative(relativeTo.raw, this.raw));
+            relativeTo = extract(relativeTo);
+            return n(lowpath.relative(relativeTo, this.raw));
         }
 
         async realpath(): Promise<PathNice> {
@@ -526,7 +527,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             // regardless of whether followLinks is enabled.
             const stats = await fs.promises.stat(this.raw);
             if (!stats.isDirectory()) {
-                throw new Error('[path-nice] ls(): the path is not a directory.');
+                throw new Error('[path-nice] .ls(): the path is not a directory.');
             }
 
             const dirs = new PathNiceArr();
@@ -570,7 +571,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             // regardless of whether followLinks is enabled.
             const stats = fs.statSync(this.raw);
             if (!stats.isDirectory()) {
-                throw new Error('[path-nice] lsSync(): the path is not a directory.');
+                throw new Error('[path-nice] .lsSync(): the path is not a directory.');
             }
 
             const dirs = new PathNiceArr();
@@ -623,7 +624,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         ): chokidar.FSWatcher {
             if (fs !== nodefs && !options?.forceEvenDifferentFS) {
                 throw new Error(
-                    '[path-nice] watchWithChokidar(): the underlying fs object being ' +
+                    '[path-nice] .watchWithChokidar(): the underlying fs object being ' +
                         'used by the current path object is not the original node:fs ' +
                         'module, but chokidar can only use the original node:fs module. ' +
                         'If you are sure your operation makes sense, enable ' +
@@ -836,7 +837,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
         ): chokidar.FSWatcher {
             if (fs !== nodefs && !options?.forceEvenDifferentFS) {
                 throw new Error(
-                    '[path-nice] watchWithChokidar(): the underlying fs object being ' +
+                    '[path-nice] .watchWithChokidar(): the underlying fs object being ' +
                         'used by the current path object is not the original node:fs ' +
                         'module, but chokidar can only use the original node:fs module. ' +
                         'If you are sure your operation makes sense, enable ' +

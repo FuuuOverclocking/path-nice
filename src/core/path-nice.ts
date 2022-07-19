@@ -97,16 +97,16 @@ export interface PathNice<T = unknown> {
      *
      * @example
      * ```ts
-     * $ path('./src/index.js').filename().raw
+     * $ path('./src/index.js').filename()
      * 'index.js'
      *
-     * $ path('/home/fuu///').filename().raw
+     * $ path('/home/fuu///').filename()
      * 'fuu'                    // on POSIX
      *
      * $ path('/home/fuu/bar.txt').filename('foo.md').raw
      * '/home/fuu/foo.md'       // on POSIX
      *
-     * $ path('C:\\Users\\fuu\\\\\\').filename().raw
+     * $ path('C:\\Users\\fuu\\\\\\').filename()
      * 'fuu'                    // on Windows
      *
      * $ path('C:\\Users\\fuu\\bar.txt').filename('foo.md').raw

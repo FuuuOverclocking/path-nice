@@ -36,7 +36,10 @@ export function checkCompatibility(
     },
 ): void {
     if (l.lowpath !== r.lowpath || l.fs !== r.fs) {
-        throw new Error();
+        throw new Error(
+            '[path-nice]: The input PathNice uses an underlying path or fs ' +
+                'implementation that is different from the one currently in use.',
+        );
     }
 }
 

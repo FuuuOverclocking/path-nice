@@ -68,7 +68,7 @@ export async function move(
             return remove(fs, dest).then(() => _rename(src, dest, overwrite));
         }
         return pathExists(dest).then((destExists) => {
-            if (destExists) throw new Error('dest already exists.');
+            if (destExists) throw new Error('[path-nice] .move(): dest already exists.');
             return _rename(src, dest, overwrite);
         });
     }
@@ -111,23 +111,23 @@ export async function move(
                 ) {
                     return { srcStat, destStat, isChangingCase: true };
                 }
-                throw new Error('[path-nice] move(): src and dest must not be the same.');
+                throw new Error('[path-nice] .move(): src and dest must not be the same.');
             }
             if (srcStat.isDirectory() && !destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] move(): cannot overwrite non-directory ${dest} with directory ${src}.`,
+                    `[path-nice] .move(): cannot overwrite non-directory ${dest} with directory ${src}.`,
                 );
             }
             if (!srcStat.isDirectory() && destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] move(): cannot overwrite directory '${dest}' with non-directory '${src}'.`,
+                    `[path-nice] .move(): cannot overwrite directory '${dest}' with non-directory '${src}'.`,
                 );
             }
         }
 
         if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
             throw new Error(
-                `[path-nice] move(): cannot move ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .move(): cannot move ${src} to a subdirectory of self ${dest}`,
             );
         }
         return { srcStat, destStat };
@@ -193,7 +193,7 @@ export async function move(
         }
         if (areIdentical(srcStat, destStat)) {
             throw new Error(
-                `[path-nice] move(): cannot copy ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .move(): cannot copy ${src} to a subdirectory of self ${dest}`,
             );
         }
         return checkParentPaths(src, srcStat, destParent);
@@ -239,7 +239,7 @@ export function moveSync(
             return _rename(src, dest, overwrite);
         }
         const destExists = pathExists(dest);
-        if (destExists) throw new Error('dest already exists.');
+        if (destExists) throw new Error('[path-nice] .moveSync(): dest already exists.');
         return _rename(src, dest, overwrite);
     }
 
@@ -285,18 +285,18 @@ export function moveSync(
                     return { srcStat, destStat, isChangingCase: true };
                 }
                 throw new Error(
-                    '[path-nice] moveSync(): src and dest must not be the same.',
+                    '[path-nice] .moveSync(): src and dest must not be the same.',
                 );
             }
             if (srcStat.isDirectory() && !destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] moveSync(): cannot overwrite non-directory ${dest} ` +
+                    `[path-nice] .moveSync(): cannot overwrite non-directory ${dest} ` +
                         `with directory ${src}.`,
                 );
             }
             if (!srcStat.isDirectory() && destStat.isDirectory()) {
                 throw new Error(
-                    `[path-nice] moveSync(): cannot overwrite directory '${dest}' with ` +
+                    `[path-nice] .moveSync(): cannot overwrite directory '${dest}' with ` +
                         `non-directory '${src}'.`,
                 );
             }
@@ -304,7 +304,7 @@ export function moveSync(
 
         if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
             throw new Error(
-                `[path-nice] moveSync(): cannot move ${src} to a subdirectory of self ${dest}`,
+                `[path-nice] .moveSync(): cannot move ${src} to a subdirectory of self ${dest}`,
             );
         }
         return { srcStat, destStat };
@@ -368,7 +368,7 @@ export function moveSync(
         }
         if (areIdentical(srcStat, destStat)) {
             throw new Error(
-                `[path-nice] moveSync(): cannot copy ${src} to a subdirectory of ` +
+                `[path-nice] .moveSync(): cannot copy ${src} to a subdirectory of ` +
                     `self ${dest}`,
             );
         }

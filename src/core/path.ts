@@ -28,7 +28,7 @@ export function genPath(lowpath: PlatformPath, fs: FileSystem): PathFn {
         }
         if (args.length > 1) return _PathNiceArr._from(args);
 
-        throw new Error();
+        throw new Error('[path-nice] path(): One or more arguments must be provided.');
     }
 
     path.bindFS = (fs: FileSystem) => genPathWithCache(lowpath, fs);
