@@ -183,12 +183,6 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             if (!basePath) return n(lowpath.resolve(this.raw));
 
             basePath = extract(basePath);
-            if (!lowpath.isAbsolute(basePath)) {
-                throw new Error(
-                    `[path-nice] .toAbsolute(): ` +
-                        `base path "${basePath}" is not an absolute path.`,
-                );
-            }
             return n(lowpath.resolve(basePath, this.raw));
         }
 
@@ -546,9 +540,11 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 throw new Error('[path-nice] .ls(): the path is not a directory.');
             }
 
+            const thisAbs = this.toAbsolute();
+
             const dirs = new PathNiceArr();
             const files = new PathNiceArr();
-            dirs.base = files.base = this;
+            dirs.base = files.base = thisAbs;
 
             const readSingleLayer = async (dir: string) => {
                 const entries = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -574,7 +570,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 }
             };
 
-            await readSingleLayer(lowpath.normalize(this.toAbsolute().raw));
+            await readSingleLayer(lowpath.normalize(thisAbs.raw));
 
             return { dirs, files };
         }
@@ -590,9 +586,11 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 throw new Error('[path-nice] .lsSync(): the path is not a directory.');
             }
 
+            const thisAbs = this.toAbsolute();
+
             const dirs = new PathNiceArr();
             const files = new PathNiceArr();
-            dirs.base = files.base = this;
+            dirs.base = files.base = thisAbs;
 
             const readSingleLayer = (dir: string) => {
                 const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -618,7 +616,7 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 }
             };
 
-            readSingleLayer(lowpath.normalize(this.toAbsolute().raw));
+            readSingleLayer(lowpath.normalize(thisAbs.raw));
 
             return { dirs, files };
         }
@@ -874,6 +872,40 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
                 this.map((p) => p.raw),
                 options,
             );
+        }
+
+        // ===============================================================================
+        // Array methods
+        // ===============================================================================
+
+        concat(...args: any[]): PathNiceArr {
+            const arr = super.concat(...args) as PathNiceArr;
+            arr.base = this.base;
+            return arr;
+        }
+
+        reverse(): PathNiceArr {
+            const arr = super.reverse() as PathNiceArr;
+            arr.base = this.base;
+            return arr;
+        }
+
+        slice(...args: any[]): PathNiceArr {
+            const arr = super.slice(...args) as PathNiceArr;
+            arr.base = this.base;
+            return arr;
+        }
+
+        splice(...args: [any, any]): PathNiceArr {
+            const arr = super.splice(...args) as PathNiceArr;
+            arr.base = this.base;
+            return arr;
+        }
+
+        filter(...args: [any, any]): PathNiceArr {
+            const arr = super.filter(...args) as PathNiceArr;
+            arr.base = this.base;
+            return arr;
         }
     }
 

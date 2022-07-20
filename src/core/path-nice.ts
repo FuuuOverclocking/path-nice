@@ -289,6 +289,12 @@ export interface PathNice<T = unknown> {
      * $ path('./src/index.ts').toAbsolute().raw // on Windows,
      *                                           // suppose cwd is 'D:\\path-nice'
      * 'D:\\path-nice\\src\\index.ts'
+     *
+     * $ path('./src/index.ts').toAbsolute('/work').raw     // on POSIX
+     * '/work/src/index.ts'
+     *
+     * $ path('./src/index.ts').toAbsolute('D:\\work').raw  // on Windows
+     * 'D:\\work\\src\\index.ts'
      * ```
      *
      * @category Path related
