@@ -168,7 +168,7 @@ f2.postfix('.old')              // path('path-nice/package.json.old')
 
 下面大多数方法是异步方法, 返回一个 `Promise`. 在函数名加上后缀 `Sync`, 即为它们的同步版本.
 
-这些方法的具体用法, 可在 [PathNice 文档](), 或编辑器的提示中找到.
+这些方法的具体用法, 可在 [PathNice 文档](https://fuuuoverclocking.github.io/path-nice/interfaces/PathNice.html), 或编辑器的提示中找到.
 
 #### Read and write
 

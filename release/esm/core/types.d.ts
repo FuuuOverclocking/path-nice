@@ -18,8 +18,8 @@ export declare type PathFn = typeof path;
  * is returned. The class `PathNiceArr` extends the base class `Array`, adding methods for
  * copying, moving, removing, watching files in a holistic manner.
  *
- * For details, please refer to the documents of [PathNice]()
- * and [PathNiceArr]().
+ * For details, please refer to the documents of [PathNice](https://fuuuoverclocking.github.io/path-nice/interfaces/PathNice.html)
+ * and [PathNiceArr](https://fuuuoverclocking.github.io/path-nice/interfaces/PathNiceArr.html).
  *
  * @example
  *
