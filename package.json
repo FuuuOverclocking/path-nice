@@ -2,7 +2,7 @@
     "name": "path-nice",
     "version": "1.2.3",
     "license": "MIT",
-    "description": "How path and fs should be designed.",
+    "description": "The elegant and handy alternative to path, fs and glob",
     "homepage": "https://github.com/FuuuOverclocking/path-nice",
     "repository": {
         "type": "git",
@@ -23,7 +23,7 @@
     "scripts": {
         "build": "tsc -p tsconfig.cjs.json",
         "watch": "tsc -w -p tsconfig.cjs.json",
-        "test": "jest",
+        "test": "jest && node ./scripts/gen-coverage-badge.js",
         "cz": "cz",
         "docs": "node ./scripts/gen-docs.js",
         "release": "node ./scripts/release.js"
@@ -53,6 +53,8 @@
         "fs",
         "file",
         "file system",
+        "extra",
+        "glob",
         "copy",
         "directory",
         "extra",
