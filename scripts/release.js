@@ -8,28 +8,28 @@ async function main() {
 
     console.log('release: v' + version);
 
-    // // at dev branch
-    // if ((await x('git branch --show-current')) !== 'dev') {
-    //     console.log(`x('git branch --show-current') !== 'dev'`);
-    //     return;
-    // }
+    // at dev branch
+    if ((await x('git branch --show-current')) !== 'dev') {
+        console.log(`x('git branch --show-current') !== 'dev'`);
+        return;
+    }
 
-    // // working tree is clean
-    // if ((await x('git status --porcelain')) !== '') {
-    //     console.log(`x('git status --porcelain') !== ''`);
-    //     return;
-    // }
+    // working tree is clean
+    if ((await x('git status --porcelain')) !== '') {
+        console.log(`x('git status --porcelain') !== ''`);
+        return;
+    }
 
-    // // rebase & merge
-    // await sh('git rebase -i main');
-    // await sh('git checkout main');
-    // await sh('git merge dev');
+    // rebase & merge
+    await sh('git rebase -i main');
+    await sh('git checkout main');
+    await sh('git merge dev');
 
     // build & test
     await fs.remove('./build');
     await sh('tsc -p tsconfig.cjs.json');
     await sh('tsc -p tsconfig.esm.json');
-    // await sh('jest');
+    await sh('yarn test');
 
     // we can use path-nice now
     const path = require('../build/cjs/index.cjs.js');
@@ -44,21 +44,21 @@ async function main() {
     // generate CHANGLOG.md
     await sh('conventional-changelog -p angular -i CHANGELOG.md -s');
 
-    // // commit, back to dev branch, tag
-    // await sh('git add -A');
-    // await sh(`git commit -m "chore: release ${version}"`);
-    // await sh(`git tag v${version}`);
-    // await sh('git checkout dev');
-    // await sh('git merge main');
+    // commit, back to dev branch, tag
+    await sh('git add -A');
+    await sh(`git commit -m "chore: release ${version}"`);
+    await sh(`git tag v${version}`);
+    await sh('git checkout dev');
+    await sh('git merge main');
 
-    // // sync
-    // await sh('git push --all');
-    // await sh(`git push origin v${version}`);
+    // sync
+    await sh('git push --all');
+    await sh(`git push origin v${version}`);
 
-    // console.log(chalk.red(`Critical operation:`));
-    // console.log(chalk.red(`  $ npm publish --dry-run ./release`));
-    // console.log(chalk.red(`  $ npm publish ./release`));
-    // console.log(chalk.red(`Copy the command and execute it yourself.`));
+    console.log(chalk.red(`Critical operation:`));
+    console.log(chalk.red(`  $ npm publish --dry-run ./release`));
+    console.log(chalk.red(`  $ npm publish ./release`));
+    console.log(chalk.red(`Copy the command and execute it yourself.`));
 }
 
 function getInput() {

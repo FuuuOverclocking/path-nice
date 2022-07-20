@@ -1,4 +1,11 @@
-const path = require('../release/cjs/index.cjs.js');
+let path;
+
+try {
+    path = require('../build/cjs/index.cjs.js');
+} catch (e) {
+    console.log('Cannot import path-nice from ./build/cjs, do you forget to build?');
+}
+
 const { sh } = require('./utils');
 
 main();
