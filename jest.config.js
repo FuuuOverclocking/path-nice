@@ -10,7 +10,7 @@ module.exports = {
 
     globals: {
         'ts-jest': {
-            tsconfig: './tsconfig.cjs.json'
+            tsconfig: './tsconfig.cjs.json',
         },
     },
 
@@ -44,12 +44,7 @@ module.exports = {
     coverageProvider: 'v8',
 
     // A list of reporter names that Jest uses when writing coverage reports
-    // coverageReporters: [
-    //   "json",
-    //   "text",
-    //   "lcov",
-    //   "clover"
-    // ],
+    coverageReporters: ['json', 'json-summary', 'text', 'lcov', 'clover'],
 
     // An object that configures minimum threshold enforcement for coverage results
     // coverageThreshold: undefined,
