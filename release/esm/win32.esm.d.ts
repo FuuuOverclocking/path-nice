@@ -1,7 +1,7 @@
-import { pathWin32, PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 } from './path.js';
-import type { Path, PathPosix, PathWin32, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath } from './common/types.js';
+/// <reference types="node" />
+import { pathWin32 } from './path.js';
+import type { PathNice, PathNiceArr } from './path.js';
+export type { ParsedPathNice, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, } from './path.js';
 export default pathWin32;
-declare const delimiter: string, sep: string, posix: PathPosix, win32: PathWin32, basename: (p: string, ext?: string | undefined) => string, dirname: (p: string) => string, extname: (p: string) => string, format: (pP: FormatInputPathObject) => string, isAbsolute: (p: string) => boolean, join: (...paths: string[]) => string, normalize: (p: string) => string, parse: (p: string) => ParsedPath, relative: (from: string, to: string) => string, resolve: (...pathSegments: string[]) => string, toNamespacedPath: (path: string) => string;
-export { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
-export { PathNice, ParsedPathNice, PathNicePosix, PathNiceWin32 };
-export type { Path, PathPosix, PathWin32, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, };
+declare const delimiter: ";" | ":", sep: "/" | "\\", posix: typeof import("./core/types.js").path, win32: typeof import("./core/types.js").path, PathNice: any, PathNiceArr: any, basename: (p: string, ext?: string | undefined) => string, dirname: (p: string) => string, extname: (p: string) => string, format: (pathString: import("path").FormatInputPathObject) => string, isAbsolute: (p: string) => boolean, join: (...paths: string[]) => string, normalize: (p: string) => string, parse: (pathString: string) => import("path").ParsedPath, relative: (from: string, to: string) => string, resolve: (...pathSegments: string[]) => string, toNamespacedPath: (path: string) => string;
+export { delimiter, sep, posix, win32, PathNice, PathNiceArr, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };

@@ -1,3 +1,14 @@
+# [2.0.0](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.3...v2.0.0) (2022-07-20)
+
+
+### Features
+
+* add `delete()`; `toRelative()` can have no args ([b7322eb](https://github.com/FuuuOverclocking/path-nice/commit/b7322eb20c08644d4f75d1b40652d8093f7d2413))
+* add types of original array methods of PathNiceArr ([e3089ec](https://github.com/FuuuOverclocking/path-nice/commit/e3089ecce1fdeef21d63f6e636c758ba950a8f84))
+* toAbsolute() now supports relative path as arg; base of returned PathNiceArr of ls() becomes absoulte; In PathNiceArr, the original array method returns a new array with the same base as the original array ([74569ae](https://github.com/FuuuOverclocking/path-nice/commit/74569aec24814232b951b29e83e3b0684e67b50d))
+
+
+
 ## [1.2.3](https://github.com/FuuuOverclocking/path-nice/compare/v1.2.2...v1.2.3) (2022-07-03)
 
 

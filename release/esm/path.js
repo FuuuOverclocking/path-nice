@@ -1,22 +1,7 @@
-import { path, PathNice, ParsedPathNice } from './platform/path.js';
-import { pathPosix, PathNicePosix } from './posix/path.js';
-import { pathWin32, PathNiceWin32 } from './win32/path.js';
-path.posix = pathPosix;
-path.win32 = pathWin32;
-path.PathNice = PathNice;
-path.PathNicePosix = PathNicePosix;
-path.PathNiceWin32 = PathNiceWin32;
-pathPosix.posix = pathPosix;
-pathPosix.win32 = pathWin32;
-pathPosix.PathNice = PathNice;
-pathPosix.PathNicePosix = PathNicePosix;
-pathPosix.PathNiceWin32 = PathNiceWin32;
-pathWin32.posix = pathPosix;
-pathWin32.win32 = pathWin32;
-pathWin32.PathNice = PathNice;
-pathWin32.PathNicePosix = PathNicePosix;
-pathWin32.PathNiceWin32 = PathNiceWin32;
-export { path, PathNice, ParsedPathNice };
-export { pathPosix, PathNicePosix };
-export { pathWin32, PathNiceWin32 };
+import nodepath from 'path';
+import nodefs from 'fs';
+import { genPathWithCache } from './core/path.js';
+export const path = genPathWithCache(nodepath, nodefs);
+export const pathPosix = genPathWithCache(nodepath.posix, nodefs);
+export const pathWin32 = genPathWithCache(nodepath.win32, nodefs);
 //# sourceMappingURL=path.js.map
