@@ -1,1 +1,1 @@
-{"version":3,"file":"posix.cjs.js","sourceRoot":"","sources":["../../src/posix.cjs.ts"],"names":[],"mappings":";AAAA,uCAAsC;AACtC,iBAAS,mBAAS,CAAC"}
+{"version":3,"file":"posix.cjs.js","sourceRoot":"","sources":["../../src/posix.cjs.js"],"names":[],"mappings":";AAAA,MAAM,CAAC,OAAO,GAAG,OAAO,CAAC,WAAW,CAAC,CAAC,SAAS,CAAC"}

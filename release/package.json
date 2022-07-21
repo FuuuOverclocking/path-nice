@@ -1,6 +1,6 @@
 {
     "name": "path-nice",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "license": "MIT",
     "description": "The elegant and handy alternative to path, fs and glob",
     "homepage": "https://github.com/FuuuOverclocking/path-nice",
@@ -17,20 +17,16 @@
     },
     "main": "./cjs/index.cjs.js",
     "module": "./esm/index.esm.js",
-    "types": "./esm/index.esm.d.ts",
     "exports": {
         ".": {
-            "types": "./esm/index.esm.d.ts",
             "import": "./esm/index.esm.js",
             "require": "./cjs/index.cjs.js"
         },
         "./posix": {
-            "types": "./esm/posix.esm.d.ts",
             "import": "./esm/posix.esm.js",
             "require": "./cjs/posix.cjs.js"
         },
         "./win32": {
-            "types": "./esm/win32.esm.d.ts",
             "import": "./esm/win32.esm.js",
             "require": "./cjs/win32.cjs.js"
         }
@@ -43,11 +39,11 @@
         "README-cn.md"
     ],
     "scripts": {
-        "build": "tsc -p tsconfig.cjs.json",
-        "watch": "tsc -w -p tsconfig.cjs.json",
+        "build": "node ./scripts/build.js",
         "test": "jest && node ./scripts/gen-coverage-badge.js",
         "cz": "cz",
         "docs": "node ./scripts/gen-docs.js",
+        "gen-release": "node ./scripts/gen-release.js",
         "release": "node ./scripts/release.js"
     },
     "dependencies": {

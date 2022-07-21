@@ -1,7 +1,41 @@
-/// <reference types="node" />
-import { pathWin32 } from './path.js';
-import type { PathNice, PathNiceArr } from './path.js';
-export type { ParsedPathNice, FileSystem, ParsedPath, FormatInputPathObject, PlatformPath, } from './path.js';
-export default pathWin32;
-declare const delimiter: ";" | ":", sep: "/" | "\\", posix: typeof import("./core/types.js").path, win32: typeof import("./core/types.js").path, PathNice: any, PathNiceArr: any, basename: (p: string, ext?: string | undefined) => string, dirname: (p: string) => string, extname: (p: string) => string, format: (pathString: import("path").FormatInputPathObject) => string, isAbsolute: (p: string) => boolean, join: (...paths: string[]) => string, normalize: (p: string) => string, parse: (pathString: string) => import("path").ParsedPath, relative: (from: string, to: string) => string, resolve: (...pathSegments: string[]) => string, toNamespacedPath: (path: string) => string;
-export { delimiter, sep, posix, win32, PathNice, PathNiceArr, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
+import { path } from './core/types.js';
+import type {
+    PathNice,
+    PathNiceArr,
+    ParsedPathNice,
+    FileSystem,
+    ParsedPath,
+    FormatInputPathObject,
+    PlatformPath,
+} from './core/types.js';
+
+export default path;
+
+export type {
+    ParsedPathNice,
+    FileSystem,
+    ParsedPath,
+    FormatInputPathObject,
+    PlatformPath,
+};
+
+export declare const bindFS: typeof path.bindFS;
+export declare const posix: typeof path.posix;
+export declare const win32: typeof path.win32;
+declare const PathNice: typeof path.PathNice;
+declare const PathNiceArr: typeof path.PathNiceArr;
+export declare const delimiter: typeof path.delimiter;
+export declare const sep: typeof path.sep;
+export declare const basename: typeof path.basename;
+export declare const dirname: typeof path.dirname;
+export declare const extname: typeof path.extname;
+export declare const format: typeof path.format;
+export declare const isAbsolute: typeof path.isAbsolute;
+export declare const join: typeof path.join;
+export declare const normalize: typeof path.normalize;
+export declare const parse: typeof path.parse;
+export declare const relative: typeof path.relative;
+export declare const resolve: typeof path.resolve;
+export declare const toNamespacedPath: typeof path.toNamespacedPath;
+
+export { PathNice, PathNiceArr };

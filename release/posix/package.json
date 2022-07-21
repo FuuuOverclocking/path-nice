@@ -2,6 +2,5 @@
     "name": "path-nice",
     "description": "How path and fs should be designed.",
     "main": "../cjs/posix.cjs.js",
-    "module": "../esm/posix.esm.js",
-    "types": "../esm/posix.esm.d.ts"
+    "module": "../esm/posix.esm.js"
 }

@@ -87,7 +87,7 @@ yarn add path-nice
 
 ## Documents
 
-Please refer to [API Reference](https://fuuuoverclocking.github.io/path-nice/functions/default.html).
+Please refer to [API Reference](https://fuuuoverclocking.github.io/path-nice/functions/default-1.html).
 
 ## 3 minutes guide
 

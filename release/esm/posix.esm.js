@@ -1,7 +1,7 @@
-import { pathPosix } from './path.js';
-export default pathPosix;
+import { pathPosix as path } from './path.js';
+export default path;
 // prettier-ignore
-const { delimiter, sep, posix, win32, PathNice, PathNiceArr, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, } = pathPosix;
+const { bindFS, posix, win32, PathNice, PathNiceArr, delimiter, sep, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath } = path;
 // prettier-ignore
-export { delimiter, sep, posix, win32, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath, };
+export { bindFS, posix, win32, PathNice, PathNiceArr, delimiter, sep, basename, dirname, extname, format, isAbsolute, join, normalize, parse, relative, resolve, toNamespacedPath };
 //# sourceMappingURL=posix.esm.js.map

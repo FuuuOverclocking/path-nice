@@ -1,2 +1,3 @@
-import { pathPosix } from './path.js';
-export = pathPosix;
+import { path } from './core/types.js';
+
+export = path;

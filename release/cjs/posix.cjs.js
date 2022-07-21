@@ -1,4 +1,3 @@
 "use strict";
-const path_js_1 = require("./path.js");
-module.exports = path_js_1.pathPosix;
+module.exports = require('./path.js').pathPosix;
 //# sourceMappingURL=posix.cjs.js.map

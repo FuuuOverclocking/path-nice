@@ -2,6 +2,5 @@
     "name": "path-nice",
     "description": "How path and fs should be designed.",
     "main": "../cjs/win32.cjs.js",
-    "module": "../esm/win32.esm.js",
-    "types": "../esm/win32.esm.d.ts"
+    "module": "../esm/win32.esm.js"
 }

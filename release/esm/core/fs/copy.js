@@ -1,10 +1,11 @@
 export async function copy(path, fs, src, dest, options) {
-    var _a;
+    var _a, _b;
     const { dirname, isAbsolute, join, parse, resolve, sep } = path;
     // prettier-ignore
     const { chmod, copyFile, lstat, mkdir, readdir, readlink, stat, symlink, unlink, utimes, } = fs.promises;
     options !== null && options !== void 0 ? options : (options = {});
     (_a = options.recursive) !== null && _a !== void 0 ? _a : (options.recursive = true);
+    (_b = options.force) !== null && _b !== void 0 ? _b : (options.force = true);
     // Warn about using preserveTimestamps on 32-bit node
     if (options.preserveTimestamps && process.arch === 'ia32') {
         const warning = 'Using the preserveTimestamps option in 32-bit node is not recommended';
@@ -250,12 +251,13 @@ export async function copy(path, fs, src, dest, options) {
     }
 }
 export function copySync(path, fs, src, dest, options) {
-    var _a;
+    var _a, _b;
     const { dirname, isAbsolute, join, parse, resolve, sep } = path;
     // prettier-ignore
     const { chmodSync, copyFileSync, lstatSync, mkdirSync, readdirSync, readlinkSync, statSync, symlinkSync, unlinkSync, utimesSync, } = fs;
     options !== null && options !== void 0 ? options : (options = {});
     (_a = options.recursive) !== null && _a !== void 0 ? _a : (options.recursive = true);
+    (_b = options.force) !== null && _b !== void 0 ? _b : (options.force = true);
     // Warn about using preserveTimestamps on 32-bit node
     if (options.preserveTimestamps && process.arch === 'ia32') {
         const warning = 'Using the preserveTimestamps option in 32-bit node is not recommended';

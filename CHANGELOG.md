@@ -1,3 +1,13 @@
+## [2.0.2](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.1...v2.0.2) (2022-07-21)
+
+
+### Bug Fixes
+
+* fix the issue that cjs version was prompting incorrectly when used directly in node ([e31db2b](https://github.com/FuuuOverclocking/path-nice/commit/e31db2be23df910eae899d545ba668d1fb4f3fc4))
+* options.force of copy() should be true ([f21e4b5](https://github.com/FuuuOverclocking/path-nice/commit/f21e4b5e949f78387be9b8d96abe907e1173875d))
+
+
+
 ## [2.0.1](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.0...v2.0.1) (2022-07-20)
 
 
