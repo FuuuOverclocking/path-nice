@@ -4,13 +4,13 @@ const { spawn, exec } = require('child_process');
 
 const _exec = util.promisify(exec);
 exports.x = async function x(cmd) {
-    console.log(chalk.bgCyan('$ ' + cmd));
+    console.log(chalk.bgCyan.white('$ ' + cmd));
     const { stdout } = await _exec(cmd);
     return stdout.trim();
 };
 
 exports.sh = async function sh(cmd) {
-    console.log(chalk.bgCyan('$ ' + cmd));
+    console.log(chalk.bgCyan.white('$ ' + cmd));
     return new Promise((ok, err) => {
         const proc = spawn(cmd, {
             stdio: 'inherit',

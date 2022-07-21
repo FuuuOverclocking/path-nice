@@ -6,8 +6,11 @@
     },
     "include": ["src/**/*"],
     "exclude": [
-        "src/index.esm.ts",
-        "src/posix.esm.ts",
-        "src/win32.esm.ts",
+        "src/index.esm.js",
+        "src/index.esm.d.ts",
+        "src/posix.esm.js",
+        "src/posix.esm.d.ts",
+        "src/win32.esm.js",
+        "src/win32.esm.d.ts",
     ]
 }

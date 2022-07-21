@@ -6,8 +6,11 @@
     },
     "include": ["src/**/*"],
     "exclude": [
-        "src/index.cjs.ts",
-        "src/posix.cjs.ts",
-        "src/win32.cjs.ts",
+        "src/index.cjs.js",
+        "src/index.cjs.d.ts",
+        "src/posix.cjs.js",
+        "src/posix.cjs.d.ts",
+        "src/win32.cjs.js",
+        "src/win32.cjs.d.ts",
     ]
 }

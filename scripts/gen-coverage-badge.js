@@ -15,22 +15,24 @@ try {
 
     console.log('Updating coverage badge...');
     await downloadFromShield(badgePath, coverage);
+
+    function downloadFromShield(badgePath, coverage) {
+        const color = coverage < 60 ? 'red' : coverage < 80 ? 'yellow' : 'brightgreen';
+        const coverageStr = encodeURIComponent(coverage.toFixed(1) + '%');
+        const URL = `https://img.shields.io/badge/coverage-${coverageStr}-${color}?logo=jest`;
+
+        return new Promise((ok, err) => {
+            const ws = badgePath.createWriteStream();
+            https
+                .get(URL, (res) => {
+                    res.pipe(ws);
+
+                    ws.on('finish', () => {
+                        ws.close();
+                        ok();
+                    });
+                })
+                .on('error', err);
+        });
+    }
 })();
-
-function downloadFromShield(badgePath, coverage) {
-    const color = coverage < 60 ? 'red' : coverage < 80 ? 'yellow' : 'brightgreen';
-    const coverageStr = encodeURIComponent(coverage.toFixed(1) + '%');
-    const URL = `https://img.shields.io/badge/coverage-${coverageStr}-${color}?logo=jest`;
-
-    return new Promise((ok, err) => {
-        const ws = badgePath.createWriteStream();
-        https.get(URL, (res) => {
-            res.pipe(ws);
-
-            ws.on('finish', () => {
-                ws.close();
-                ok();
-            });
-        }).on('error', err);
-    });
-}

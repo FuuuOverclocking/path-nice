@@ -1,3 +1,4 @@
+const { sh } = require('./utils');
 let path;
 
 try {
@@ -6,10 +7,7 @@ try {
     console.log('Cannot import path-nice from ./build/cjs, do you forget to build?');
 }
 
-const { sh } = require('./utils');
-
-main();
-async function main() {
+(async () => {
     await path('README.md').rename('README-en.md');
     await path('README-cn.md').rename('README.md');
 
@@ -31,4 +29,4 @@ async function main() {
             return str;
         });
     }
-}
+})();

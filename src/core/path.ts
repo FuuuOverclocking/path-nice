@@ -1,4 +1,4 @@
-import type { PathFn, FileSystem, PlatformPath, PathNice, PathNiceArr } from './types.js';
+import type { PathFn, FileSystem, PlatformPath } from './types.js';
 import { genPathNice } from './path-nice-impl.js';
 import { defineLazyOverride } from './util.js';
 

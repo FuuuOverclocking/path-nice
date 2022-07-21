@@ -17,15 +17,14 @@
     },
     "main": "See ./release/package.json",
     "module": "See ./release/package.json",
-    "types": "See ./release/package.json",
     "exports": "See ./release/package.json",
     "files": "See ./release/package.json",
     "scripts": {
-        "build": "tsc -p tsconfig.cjs.json",
-        "watch": "tsc -w -p tsconfig.cjs.json",
+        "build": "node ./scripts/build.js",
         "test": "jest && node ./scripts/gen-coverage-badge.js",
         "cz": "cz",
         "docs": "node ./scripts/gen-docs.js",
+        "gen-release": "node ./scripts/gen-release.js",
         "release": "node ./scripts/release.js"
     },
     "dependencies": {

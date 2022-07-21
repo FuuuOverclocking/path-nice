@@ -1,6 +1,6 @@
 {
     "$schema": "https://typedoc.org/schema.json",
-    "entryPoints": ["./src/index.esm.ts"],
+    "entryPoints": ["./src/index.esm.d.ts"],
     "includeVersion": true,
     "cleanOutputDir": false,
     "disableSources": true,
