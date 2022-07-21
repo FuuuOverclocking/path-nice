@@ -455,11 +455,7 @@ export interface PathNice<T = unknown> {
      *
      * Asynchronously reads the entire contents of a file.
      *
-     * If no encoding is specified (using options.encoding), the data is returned as a
-     * <Buffer> object. Otherwise, the data will be a string.
-     *
-     * If options is a string, then it specifies the encoding.
-     *
+     * @param options if options is a string, then it specifies the encoding.
      * - `options.encoding` Default: 'utf8'
      * - `options.flag` See [support of file system flags](https://nodejs.org/api/fs.html#file-system-flags). Default: 'r'
      * - `options.signal` allows aborting an in-progress readFile
@@ -501,11 +497,7 @@ export interface PathNice<T = unknown> {
      *
      * Synchronously reads the entire contents of a file.
      *
-     * If no encoding is specified (using options.encoding), the data is returned as a
-     * <Buffer> object. Otherwise, the data will be a string.
-     *
-     * If options is a string, then it specifies the encoding.
-     *
+     * @param options if options is a string, then it specifies the encoding.
      * - `options.encoding` Default: 'utf8'
      * - `options.flag` See [support of file system flags](https://nodejs.org/api/fs.html#file-system-flags). Default: 'r'
      *
