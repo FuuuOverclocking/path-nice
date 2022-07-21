@@ -45,6 +45,7 @@ export async function copy(
 
     options ??= {};
     options.recursive ??= true;
+    options.force ??= true;
 
     // Warn about using preserveTimestamps on 32-bit node
     if (options.preserveTimestamps && process.arch === 'ia32') {
@@ -372,6 +373,7 @@ export function copySync(
 
     options ??= {};
     options.recursive ??= true;
+    options.force ??= true;
 
     // Warn about using preserveTimestamps on 32-bit node
     if (options.preserveTimestamps && process.arch === 'ia32') {
