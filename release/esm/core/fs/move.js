@@ -217,9 +217,12 @@ export function moveSync(path, fs, src, dest, options) {
             result.push(statFunc(dest));
         }
         catch (err) {
-            if (err.code === 'ENOENT')
+            if (err.code === 'ENOENT') {
                 result.push(null);
-            throw err;
+            }
+            else {
+                throw err;
+            }
         }
         return result;
     }

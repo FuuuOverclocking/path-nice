@@ -1,3 +1,17 @@
+## [2.0.4](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.3...v2.0.4) (2022-07-23)
+
+
+### Bug Fixes
+
+* fix the bug that copySync and moveSync accidentally throw errors when dest does not exist ([9b79f4a](https://github.com/FuuuOverclocking/path-nice/commit/9b79f4ab2241348a8e3c3f8578f0ece3fdfcaf2b))
+
+
+### Features
+
+* add toString() ([f7e7fdb](https://github.com/FuuuOverclocking/path-nice/commit/f7e7fdb1bbdde7f9c315cde47ec70f6d1231c1d6))
+
+
+
 ## [2.0.3](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.2...v2.0.3) (2022-07-21)
 
 

@@ -15,6 +15,10 @@ export interface PathNice<T = unknown> {
     readonly lowpath: PlatformPath;
     /** @internal */
     readonly fs: FileSystem;
+    /** Returns raw path string. */
+    valueOf(): string;
+    /** Returns raw path string. */
+    toString(): string;
     /**
      * Join this path with all arguments together and normalize the resulting path.
      *

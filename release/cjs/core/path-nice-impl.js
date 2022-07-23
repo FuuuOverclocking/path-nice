@@ -52,6 +52,9 @@ function genPathNice(lowpath, fs) {
         valueOf() {
             return this.raw;
         }
+        toString() {
+            return this.raw;
+        }
         // ===============================================================================
         // Path related methods
         // ===============================================================================
