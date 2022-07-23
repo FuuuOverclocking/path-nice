@@ -61,6 +61,10 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             return this.raw;
         }
 
+        toString(): string {
+            return this.raw;
+        }
+
         // ===============================================================================
         // Path related methods
         // ===============================================================================

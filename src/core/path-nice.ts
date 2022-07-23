@@ -14,6 +14,12 @@ export interface PathNice<T = unknown> {
     /** @internal */
     readonly fs: FileSystem;
 
+    /** Returns raw path string. */
+    valueOf(): string;
+
+    /** Returns raw path string. */
+    toString(): string;
+
     // ===================================================================================
     // Path related methods
     // ===================================================================================
