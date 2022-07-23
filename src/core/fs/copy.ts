@@ -448,8 +448,11 @@ export function copySync(
         try {
             result.push(statFunc(dest));
         } catch (err: any) {
-            if (err.code === 'ENOENT') result.push(null);
-            throw err;
+            if (err.code === 'ENOENT') {
+                result.push(null);
+            } else {
+                throw err;
+            }
         }
 
         return result as [BigIntStats, BigIntStats | null];

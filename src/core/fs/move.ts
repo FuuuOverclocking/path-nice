@@ -111,7 +111,9 @@ export async function move(
                 ) {
                     return { srcStat, destStat, isChangingCase: true };
                 }
-                throw new Error('[path-nice] .move(): src and dest must not be the same.');
+                throw new Error(
+                    '[path-nice] .move(): src and dest must not be the same.',
+                );
             }
             if (srcStat.isDirectory() && !destStat.isDirectory()) {
                 throw new Error(
@@ -320,8 +322,11 @@ export function moveSync(
         try {
             result.push(statFunc(dest));
         } catch (err: any) {
-            if (err.code === 'ENOENT') result.push(null);
-            throw err;
+            if (err.code === 'ENOENT') {
+                result.push(null);
+            } else {
+                throw err;
+            }
         }
 
         return result as [BigIntStats, BigIntStats | null];
