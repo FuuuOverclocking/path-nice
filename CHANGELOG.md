@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.4...v2.0.5) (2022-07-25)
+
+
+### Features
+
+* isEmptyDir(Sync) now supports the option `followlink` ([0984d35](https://github.com/FuuuOverclocking/path-nice/commit/0984d351ae0174465c372989a9850e1d04b7b560))
+
+
+
 ## [2.0.4](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.3...v2.0.4) (2022-07-23)
 
 

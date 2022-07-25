@@ -366,41 +366,85 @@ function genPathNice(lowpath, fs) {
                 return false;
             }
         }
-        async isEmptyDir() {
-            const files = await fs.promises.readdir(this.raw);
-            return files.length === 0;
+        async isEmptyDir(followlink) {
+            if (!(await this.isDir(followlink)))
+                return false;
+            try {
+                const files = await fs.promises.readdir(this.raw);
+                return files.length === 0;
+            }
+            catch (_a) {
+                return false;
+            }
         }
-        isEmptyDirSync() {
-            const files = fs.readdirSync(this.raw);
-            return files.length === 0;
+        isEmptyDirSync(followlink) {
+            if (!this.isDirSync(followlink))
+                return false;
+            try {
+                const files = fs.readdirSync(this.raw);
+                return files.length === 0;
+            }
+            catch (_a) {
+                return false;
+            }
         }
         async isDir(followlink) {
-            const stats = followlink
-                ? await fs.promises.stat(this.raw)
-                : await fs.promises.lstat(this.raw);
-            return stats.isDirectory();
+            try {
+                const stats = followlink
+                    ? await fs.promises.stat(this.raw)
+                    : await fs.promises.lstat(this.raw);
+                return stats.isDirectory();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         isDirSync(followlink) {
-            const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
-            return stats.isDirectory();
+            try {
+                const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
+                return stats.isDirectory();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         async isFile(followlink) {
-            const stats = followlink
-                ? await fs.promises.stat(this.raw)
-                : await fs.promises.lstat(this.raw);
-            return stats.isFile();
+            try {
+                const stats = followlink
+                    ? await fs.promises.stat(this.raw)
+                    : await fs.promises.lstat(this.raw);
+                return stats.isFile();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         isFileSync(followlink) {
-            const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
-            return stats.isFile();
+            try {
+                const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
+                return stats.isFile();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         async isSymbolicLink() {
-            const stats = await fs.promises.lstat(this.raw);
-            return stats.isSymbolicLink();
+            try {
+                const stats = await fs.promises.lstat(this.raw);
+                return stats.isSymbolicLink();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         isSymbolicLinkSync() {
-            const stats = fs.lstatSync(this.raw);
-            return stats.isSymbolicLink();
+            try {
+                const stats = fs.lstatSync(this.raw);
+                return stats.isSymbolicLink();
+            }
+            catch (_a) {
+                return false;
+            }
         }
         readdir(options) {
             return fs.promises.readdir(this.raw, options);
