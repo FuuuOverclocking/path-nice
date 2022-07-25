@@ -1346,25 +1346,29 @@ export interface PathNice<T = unknown> {
     existsSync(): boolean;
 
     /**
-     * Synchronously check if the path is an empty directory.
+     * Asynchronously check whether the path exists and is an empty directory.
      *
-     * If the path is not a directory, an error will be thrown.
+     * Note: if the path is inaccessible or not a directory, it also returns false.
+     *
+     * @param followlink when true, if the path is a link, follows it. Default: false
      *
      * @category Is ... ?
      */
-    isEmptyDir(): Promise<boolean>;
+    isEmptyDir(followlink?: boolean): Promise<boolean>;
 
     /**
-     * Asynchronously check if the path is an empty directory.
+     * Synchronously check whether the path exists and is an empty directory.
      *
-     * If the path is not a directory, an error will be thrown.
+     * Note: if the path is inaccessible or not a directory, it also returns false.
+     *
+     * @param followlink when true, if the path is a link, follows it. Default: false
      *
      * @category Is ... ? Sync
      */
-    isEmptyDirSync(): boolean;
+    isEmptyDirSync(followlink?: boolean): boolean;
 
     /**
-     * Asynchronously check if the path is a directory.
+     * Asynchronously check whether the path exists and is a directory.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
      *
@@ -1373,7 +1377,7 @@ export interface PathNice<T = unknown> {
     isDir(followlink?: boolean): Promise<boolean>;
 
     /**
-     * Synchronously check if the path is a directory.
+     * Synchronously check whether the path exists and is a directory.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
      *
@@ -1382,7 +1386,7 @@ export interface PathNice<T = unknown> {
     isDirSync(followlink?: boolean): boolean;
 
     /**
-     * Asynchronously check if the path is a file.
+     * Asynchronously check whether the path exists and is a file.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
      *
@@ -1391,7 +1395,7 @@ export interface PathNice<T = unknown> {
     isFile(followlink?: boolean): Promise<boolean>;
 
     /**
-     * Synchronously check if the path is a file.
+     * Synchronously check whether the path exists and is a file.
      *
      * @param followlink when true, if the path is a link, follows it. Default: false
      *
@@ -1400,14 +1404,14 @@ export interface PathNice<T = unknown> {
     isFileSync(followlink?: boolean): boolean;
 
     /**
-     * Check if the path is a symbolic link.
+     * Asynchronously check whether the path exists and is a symbolic link.
      *
      * @category Is ... ?
      */
     isSymbolicLink(): Promise<boolean>;
 
     /**
-     * Check if the path is a symbolic link.
+     * Synchronously check whether the path exists and is a symbolic link.
      *
      * @category Is ... ? Sync
      */

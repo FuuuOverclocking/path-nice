@@ -481,48 +481,82 @@ export function genPathNice(lowpath: PlatformPath, fs: FileSystem) {
             }
         }
 
-        async isEmptyDir(): Promise<boolean> {
-            const files = await fs.promises.readdir(this.raw);
-            return files.length === 0;
+        async isEmptyDir(followlink?: boolean): Promise<boolean> {
+            if (!(await this.isDir(followlink))) return false;
+            try {
+                const files = await fs.promises.readdir(this.raw);
+                return files.length === 0;
+            } catch {
+                return false;
+            }
         }
 
-        isEmptyDirSync(): boolean {
-            const files = fs.readdirSync(this.raw);
-            return files.length === 0;
+        isEmptyDirSync(followlink?: boolean): boolean {
+            if (!this.isDirSync(followlink)) return false;
+            try {
+                const files = fs.readdirSync(this.raw);
+                return files.length === 0;
+            } catch {
+                return false;
+            }
         }
 
         async isDir(followlink?: boolean): Promise<boolean> {
-            const stats = followlink
-                ? await fs.promises.stat(this.raw)
-                : await fs.promises.lstat(this.raw);
-            return stats.isDirectory();
+            try {
+                const stats = followlink
+                    ? await fs.promises.stat(this.raw)
+                    : await fs.promises.lstat(this.raw);
+                return stats.isDirectory();
+            } catch {
+                return false;
+            }
         }
 
         isDirSync(followlink?: boolean): boolean {
-            const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
-            return stats.isDirectory();
+            try {
+                const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
+                return stats.isDirectory();
+            } catch {
+                return false;
+            }
         }
 
         async isFile(followlink?: boolean): Promise<boolean> {
-            const stats = followlink
-                ? await fs.promises.stat(this.raw)
-                : await fs.promises.lstat(this.raw);
-            return stats.isFile();
+            try {
+                const stats = followlink
+                    ? await fs.promises.stat(this.raw)
+                    : await fs.promises.lstat(this.raw);
+                return stats.isFile();
+            } catch {
+                return false;
+            }
         }
 
         isFileSync(followlink?: boolean): boolean {
-            const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
-            return stats.isFile();
+            try {
+                const stats = followlink ? fs.statSync(this.raw) : fs.lstatSync(this.raw);
+                return stats.isFile();
+            } catch {
+                return false;
+            }
         }
 
         async isSymbolicLink(): Promise<boolean> {
-            const stats = await fs.promises.lstat(this.raw);
-            return stats.isSymbolicLink();
+            try {
+                const stats = await fs.promises.lstat(this.raw);
+                return stats.isSymbolicLink();
+            } catch {
+                return false;
+            }
         }
 
         isSymbolicLinkSync(): boolean {
-            const stats = fs.lstatSync(this.raw);
-            return stats.isSymbolicLink();
+            try {
+                const stats = fs.lstatSync(this.raw);
+                return stats.isSymbolicLink();
+            } catch {
+                return false;
+            }
         }
 
         readdir(options?: any): any {
