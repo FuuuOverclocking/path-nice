@@ -36,6 +36,7 @@ async function ensureFile(path, fs, target, options) {
                 encoding: 'utf-8',
                 mode: options === null || options === void 0 ? void 0 : options.fileMode,
             });
+            return;
         }
         else {
             throw new Error(`[path-nice] .ensureFile(): ${dirname} already exists and is not a directory.`);
@@ -70,6 +71,7 @@ function ensureFileSync(path, fs, target, options) {
         }
         if (parentStats.isDirectory()) {
             fs.writeFileSync(target, '', { encoding: 'utf-8', mode: options === null || options === void 0 ? void 0 : options.fileMode });
+            return;
         }
         else {
             throw new Error(`[path-nice] .ensureFileSync(): ${dirname} already exists and is not ` +

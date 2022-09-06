@@ -1,3 +1,12 @@
+## [2.0.6](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.5...v2.0.6) (2022-09-06)
+
+
+### Bug Fixes
+
+* fix a bug in ensureFile when creating a file ([d7b1ebd](https://github.com/FuuuOverclocking/path-nice/commit/d7b1ebdea760de039349832c1ea47cea4019b974))
+
+
+
 ## [2.0.5](https://github.com/FuuuOverclocking/path-nice/compare/v2.0.4...v2.0.5) (2022-07-25)
 
 

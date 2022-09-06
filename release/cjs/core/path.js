@@ -43,7 +43,6 @@ function genPath(lowpath, fs) {
     path.PathNice = _PathNice;
     path.PathNiceArr = _PathNiceArr;
     // No need to bind. All methods of `path` do not use `this`.
-    // Assign values manually one by one, otherwise the JSDoc will not be inherited.
     path.normalize = lowpath.normalize;
     path.join = lowpath.join;
     path.resolve = lowpath.resolve;
